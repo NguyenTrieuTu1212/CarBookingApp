@@ -48,7 +48,6 @@ class HomePageState extends State<HomePage> {
 
 
 
-
   void updateMapTheme(GoogleMapController controller)
   {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -131,6 +130,7 @@ class HomePageState extends State<HomePage> {
   
   @override
   Widget build(BuildContext context) {
+
     String address = Provider
         .of<AppInfor>(context, listen: false)
         .pickUpAddress
@@ -334,7 +334,6 @@ class HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
                 children: [
-
                   Container(
                     child: Center(
                       child: Container(
@@ -599,8 +598,7 @@ class HomePageState extends State<HomePage> {
                                    borderRadius: BorderRadius.circular(5.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
                                  ),
                                ),
-                               onPressed: () {
-                                 // Hành động khi nút được nhấn
+                               onPressed: ()  {
                                },
                                child: const Row(
                                  mainAxisAlignment: MainAxisAlignment.center,
@@ -625,9 +623,12 @@ class HomePageState extends State<HomePage> {
                    )
                  ],
                ),
+
              ),
             borderRadius: radius,
             minHeight: 150,
+
+
           ),
           // Draw button
           /*Positioned(
@@ -695,11 +696,7 @@ class HomePageState extends State<HomePage> {
       // Draw Buttun
     );
 
-
-
   }
-
-
 }
 
 
