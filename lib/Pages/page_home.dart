@@ -10,6 +10,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
@@ -41,6 +42,7 @@ class HomePageState extends State<HomePage> {
 
 
   TextEditingController pickUpTextEditingController = TextEditingController();
+  TextEditingController displayPickUpTextEditingController = TextEditingController();
   TextEditingController destinationTextEditingController = TextEditingController();
   List<Map<String,dynamic>> locationListDisplay = [];
 
@@ -134,7 +136,7 @@ class HomePageState extends State<HomePage> {
         .pickUpAddress
         ?.addressHumman ?? "";
     pickUpTextEditingController.text = address;
-
+    displayPickUpTextEditingController.text = address;
     const BorderRadiusGeometry radius = BorderRadius.only(
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
@@ -326,7 +328,6 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
          SlidingUpPanel(
             maxHeight: 700,
             panel:  Center(
@@ -522,6 +523,9 @@ class HomePageState extends State<HomePage> {
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48.0),
                         backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
+                        ),
                       ),
                       onPressed: () {
                         // Hành động khi nút được nhấn
@@ -540,8 +544,8 @@ class HomePageState extends State<HomePage> {
 
               ),
             ),
-
              collapsed: Container(
+               width: 10,
                decoration: const BoxDecoration(
                  color: Colors.white,
                  borderRadius: radius,
@@ -553,7 +557,7 @@ class HomePageState extends State<HomePage> {
                      child: Center(
                        child: Container(
                          margin: const EdgeInsets.only(top:10),
-                         height: 10,
+                         height: 5,
                          width: 50,
                          decoration: BoxDecoration(
                            borderRadius: BorderRadius.circular(10),
@@ -563,14 +567,62 @@ class HomePageState extends State<HomePage> {
                        ),
                      ),
                    ),
+                   Container(
+                     child:  SafeArea(
+                       top: false,
+                       child: Column(
+                         children: [
+                           const Text(
+                             "Pickup Destination Address",
+                             style: TextStyle(
+                               fontWeight: FontWeight.bold,
+                               color: Colors.black87,
+                               fontSize: 20.0,
+                             ),
+                           ),
+                           const Text(
+                             "Drag the map to move a pin",
+                             style: TextStyle(
+                               fontWeight: FontWeight.normal,
+                               color: Colors.grey,
+                               fontSize: 15.0,
+                             ),
+                           ),
+                           const SizedBox(height: 5.0,),
+                           Container(
+                             width: 350, // Đặt chiều rộng mong muốn cho FilledButton
+                             child: FilledButton(
+                               style: FilledButton.styleFrom(
+                                 minimumSize: const Size.fromHeight(45.0),
+                                 backgroundColor: Colors.green,
+                                 shape: RoundedRectangleBorder(
+                                   borderRadius: BorderRadius.circular(5.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
+                                 ),
+                               ),
+                               onPressed: () {
+                                 // Hành động khi nút được nhấn
+                               },
+                               child: const Text(
+                                 "Get current location",
+                                 style: TextStyle(
+                                   fontWeight: FontWeight.bold,
+                                   fontSize: 15,
+                                   color: Colors.black87,
+                                 ),
+                               ),
+                             ),
+                           )
+                         ],
+                       ),
+                     ),
+                   )
                  ],
                ),
              ),
             borderRadius: radius,
+            minHeight: 150,
           ),
-
           // Draw button
-
           /*Positioned(
               left: 0,
               right: 0,
