@@ -97,11 +97,43 @@ class HomePageState extends State<HomePage> {
   }
 
 
+  searchLocation(String locationName) async {
+    if (locationName.length > 1) {
+      // Get Api from url
+      String urlApi = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$locationName&key=AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg&components=country:vn";
+      var responseFromPlaceApi = await CommonMethods.sendRequestAPI(urlApi) ?? {};
+      if (responseFromPlaceApi == "Error") return;
+
+
+      // Process Data if API response
+      if(responseFromPlaceApi["status"] == "OK"){
+        List<dynamic> predictions =[];
+        List<Map<String,dynamic>> locations = [];
+        predictions = responseFromPlaceApi["predictions"] ?? {};
+        for(var prediction in predictions ){
+          Map<String,dynamic> location = {
+            "description" : prediction["description"],
+            "place_id" : prediction["place_id"],
+            "structured_formatting" : prediction["structured_formatting"],
+          };
+          locations.add(location);
+        }
+        setState(() {
+          locationListDisplay = locations;
+        });
+        print(locationListDisplay);
+      }
+    }
+  }
 
   
   @override
   Widget build(BuildContext context) {
-
+    String address = Provider
+        .of<AppInfor>(context, listen: false)
+        .pickUpAddress
+        ?.addressHumman ?? "";
+    pickUpTextEditingController.text = address;
 
     const BorderRadiusGeometry radius = BorderRadius.only(
       topLeft: Radius.circular(24.0),
@@ -228,190 +260,6 @@ class HomePageState extends State<HomePage> {
             },
           ),
 
-
-
-         SlidingUpPanel(
-            panel:  Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
-                children: [
-                  Container(
-                    child: Center(
-                      child: Container(
-                        margin: const EdgeInsets.only(top:10),
-                        height: 5,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.grey,
-                        ),
-
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4.0,),
-                   SafeArea(
-                    top: false,
-                    child: Column(
-                      children: [
-                        const Text(
-                            "Set your destination",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              fontSize: 20,
-                            ),
-                        ),
-                        const SizedBox(height: 4.0,),
-                        const Text(
-                          "Type and pick from suggestion",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const Divider(height: 30,color: Colors.grey,),
-                        Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20.0),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 8.0,
-                                    width: 8.0,
-                                    margin: const EdgeInsets.all(2.0),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.green,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 40.0,
-                                    width: 2.0,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.green,
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 8.0,
-                                    width: 8.0,
-                                    margin: const EdgeInsets.all(2.0),
-                                    decoration: const BoxDecoration(color: Colors.green,),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 20.0),
-                                child: Column(
-                                  children: [
-                                    TextFormField(
-                                      readOnly: true,
-                                      controller: pickUpTextEditingController,
-                                      decoration: const InputDecoration(
-                                        isDense: true,
-                                        prefixIcon: Icon(Icons.search),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                    TextFormField(
-                                      onChanged: (inpuText){
-
-                                      },
-                                      controller: destinationTextEditingController,
-                                      decoration: const InputDecoration(
-                                        isDense: true,
-                                        prefixIcon: Icon(Icons.search),
-                                        hintText: "Where go ?",
-                                        hintStyle: TextStyle(color: Colors.greenAccent),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5.0),
-                        Container(
-                          height: 200,
-                          child: ListView.builder(
-                            itemCount: 5,
-                            padding: EdgeInsets.only(right: 10),
-                            itemBuilder: (BuildContext context, int index) {
-                              return ListTile(
-                                leading: const Icon(Icons.location_on),
-                                title: Text("Index $index"),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Index address $index"),
-                                    Container(
-                                      height: 1,
-                                      margin: const EdgeInsets.only(top: 8.0),
-                                      color: Colors.grey,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 15.0,),
-                        Container(
-                          child: Center(
-                            child: Container(
-                              margin: const EdgeInsets.only(top:10),
-                              height: 20,
-                              width: 150,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.grey,
-                              ),
-
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-             collapsed: Container(
-               decoration: const BoxDecoration(
-                 color: Colors.white,
-                 borderRadius: radius,
-               ),
-               child:  Column(
-                 mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
-                 children: [
-                   Container(
-                     child: Center(
-                       child: Container(
-                         margin: const EdgeInsets.only(top:10),
-                         height: 10,
-                         width: 50,
-                         decoration: BoxDecoration(
-                           borderRadius: BorderRadius.circular(10),
-                           color: Colors.grey,
-                         ),
-
-                       ),
-                     ),
-                   ),
-                 ],
-               ),
-             ),
-            borderRadius: radius,
-          ),
-
-          // Draw button
           Positioned(
             top: 36,
             left: 19,
@@ -478,6 +326,251 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
+
+         SlidingUpPanel(
+            maxHeight: 700,
+            panel:  Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
+                children: [
+
+                  Container(
+                    child: Center(
+                      child: Container(
+                        margin: const EdgeInsets.only(top:10),
+                        height: 5,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.grey,
+                        ),
+
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4.0,),
+                   SafeArea(
+                    top: false,
+                    child: Column(
+                      children: [
+                        const Text(
+                            "Set your destination",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 25,
+                            ),
+                        ),
+                        const SizedBox(height: 4.0,),
+                        const Text(
+                          "Type and pick from suggestion",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const Divider(height: 35,color: Colors.green,),
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 8.0,
+                                    width: 8.0,
+                                    margin: const EdgeInsets.all(2.0),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.green,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 40.0,
+                                    width: 2.0,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 8.0,
+                                    width: 8.0,
+                                    margin: const EdgeInsets.all(2.0),
+                                    decoration: const BoxDecoration(color: Colors.green,),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 20.0),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        border: Border.all(color: Colors.green, width: 1.0),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0, ), // Điều chỉnh padding tại đây
+                                      child: TextFormField(
+                                        readOnly: true,
+                                        controller: pickUpTextEditingController,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        decoration: const InputDecoration(
+                                          isDense: true,
+                                          prefixIcon:  Icon(Icons.my_location,color: Colors.greenAccent),
+                                          border: InputBorder.none,
+                                          hintText: 'Enter your text here',
+                                          hintStyle: TextStyle(color: Colors.grey),
+                                        ),
+                                      ),
+                                    ),
+                                    /*TextFormField(
+                                      readOnly: true,
+                                      controller: pickUpTextEditingController,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      decoration: const InputDecoration(
+                                        isDense: true,
+                                        prefixIcon: Icon(Icons.search_sharp),
+                                        border: InputBorder.none,
+                                      ),
+                                    ),*/
+                                    const SizedBox(height: 5.0,),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        border: Border.all(color: Colors.green, width: 1.0),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0, ),
+                                      child: TextFormField(
+                                        onChanged: (inputText){
+                                          searchLocation(inputText);
+                                        },
+                                        controller: destinationTextEditingController,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        decoration: const InputDecoration(
+                                          isDense: true,
+                                          prefixIcon: Icon(Icons.location_pin,color: Colors.redAccent,),
+                                          hintText: "Where go ?",
+                                          hintStyle: TextStyle(color: Colors.grey),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10,),
+                        Container(
+                          height: 390,
+                          child: ListView.builder(
+                            itemCount: locationListDisplay.length,
+                            padding: const EdgeInsets.only(right: 10),
+                            itemBuilder: (BuildContext context, int index) {
+                              return ListTile(
+                                leading: const Icon(Icons.location_on),
+                                title: Text(
+                                     locationListDisplay[index]["description"].toString(),
+                                     style: const TextStyle(
+                                       fontWeight: FontWeight.bold,
+                                       color: Colors.black,
+                                     ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      locationListDisplay[index]["structured_formatting"]["secondary_text"].toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey,
+                                        ),
+                                    ),
+                                    Container(
+                                      height: 1,
+                                      margin: const EdgeInsets.only(top: 8.0),
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 15.0,),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 350, // Đặt chiều rộng mong muốn cho FilledButton
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48.0),
+                        backgroundColor: Colors.green,
+                      ),
+                      onPressed: () {
+                        // Hành động khi nút được nhấn
+                      },
+                      child: const Text(
+                          "Confirm destination",
+                           style: TextStyle(
+                             fontWeight: FontWeight.bold,
+                             fontSize: 15,
+                             color: Colors.black87,
+                           ),
+                      ),
+                    ),
+                  )
+                ],
+
+              ),
+            ),
+
+             collapsed: Container(
+               decoration: const BoxDecoration(
+                 color: Colors.white,
+                 borderRadius: radius,
+               ),
+               child:  Column(
+                 mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
+                 children: [
+                   Container(
+                     child: Center(
+                       child: Container(
+                         margin: const EdgeInsets.only(top:10),
+                         height: 10,
+                         width: 50,
+                         decoration: BoxDecoration(
+                           borderRadius: BorderRadius.circular(10),
+                           color: Colors.grey,
+                         ),
+
+                       ),
+                     ),
+                   ),
+                 ],
+               ),
+             ),
+            borderRadius: radius,
+          ),
+
+          // Draw button
+
           /*Positioned(
               left: 0,
               right: 0,
