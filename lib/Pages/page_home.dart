@@ -602,13 +602,20 @@ class HomePageState extends State<HomePage> {
                                onPressed: () {
                                  // Hành động khi nút được nhấn
                                },
-                               child: const Text(
-                                 "Get current location",
-                                 style: TextStyle(
-                                   fontWeight: FontWeight.bold,
-                                   fontSize: 15,
-                                   color: Colors.black87,
-                                 ),
+                               child: const Row(
+                                 mainAxisAlignment: MainAxisAlignment.center,
+                                 children: [
+                                   Icon(Icons.map_outlined,color: Colors.white,size: 25,),
+                                   SizedBox(width: 10.0,),
+                                   Text(
+                                     "Get current location",
+                                     style: TextStyle(
+                                       fontWeight: FontWeight.bold,
+                                       fontSize: 15,
+                                       color: Colors.black87,
+                                     ),
+                                   ),
+                                 ],
                                ),
                              ),
                            )
