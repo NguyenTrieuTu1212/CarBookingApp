@@ -133,6 +133,7 @@ class HomePageState extends State<HomePage> {
 
 
 
+
   @override
   Widget build(BuildContext context) {
 
@@ -335,12 +336,12 @@ class HomePageState extends State<HomePage> {
             ),
           ),
          SlidingUpPanel(
-             onPanelOpened: () {
+            onPanelOpened: () {
                setState(() {
                  _isPanelDraggable = true; // Khi panel mở, cho phép kéo xuống để đóng nó
                });
              },
-             onPanelClosed: () {
+            onPanelClosed: () {
                setState(() {
                  _isPanelDraggable = false; // Khi panel đóng, không cho phép kéo lên để mở lại
                });
@@ -447,19 +448,6 @@ class HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                     ),
-                                    /*TextFormField(
-                                      readOnly: true,
-                                      controller: pickUpTextEditingController,
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      decoration: const InputDecoration(
-                                        isDense: true,
-                                        prefixIcon: Icon(Icons.search_sharp),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),*/
                                     const SizedBox(height: 5.0,),
                                     Container(
                                       decoration: BoxDecoration(
@@ -496,10 +484,20 @@ class HomePageState extends State<HomePage> {
                         Container(
                           height: 390,
                           child: ListView.builder(
+
                             itemCount: locationListDisplay.length,
                             padding: const EdgeInsets.only(right: 10),
                             itemBuilder: (BuildContext context, int index) {
                               return ListTile(
+                                onTap: () {
+                                  // Khi một ListTile được chọn, cập nhật selectedLocation bằng thông tin tương ứng với index
+                                  setState(() {
+                                    String selectedLocation = locationListDisplay[index]["description"].toString();
+                                    print("Select is $selectedLocation");
+                                    destinationTextEditingController.text = selectedLocation.toString();
+                                  });
+
+                                },
                                 leading: const Icon(Icons.location_on),
                                 title: Text(
                                      locationListDisplay[index]["description"].toString(),
