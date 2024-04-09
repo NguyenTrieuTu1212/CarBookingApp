@@ -47,6 +47,10 @@ class HomePageState extends State<HomePage> {
   List<Map<String,dynamic>> locationListDisplay = [];
 
 
+  final PanelController _panelController = PanelController();
+
+
+
 
   void updateMapTheme(GoogleMapController controller)
   {
@@ -104,7 +108,6 @@ class HomePageState extends State<HomePage> {
       String urlApi = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$locationName&key=AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg&components=country:vn";
       var responseFromPlaceApi = await CommonMethods.sendRequestAPI(urlApi) ?? {};
       if (responseFromPlaceApi == "Error") return;
-
 
       // Process Data if API response
       if(responseFromPlaceApi["status"] == "OK"){
@@ -329,6 +332,7 @@ class HomePageState extends State<HomePage> {
             ),
           ),
          SlidingUpPanel(
+            controller: _panelController,
             maxHeight: 700,
             panel:  Center(
               child: Column(
@@ -553,24 +557,11 @@ class HomePageState extends State<HomePage> {
                  mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
                  children: [
                    Container(
-                     child: Center(
-                       child: Container(
-                         margin: const EdgeInsets.only(top:10),
-                         height: 5,
-                         width: 50,
-                         decoration: BoxDecoration(
-                           borderRadius: BorderRadius.circular(10),
-                           color: Colors.grey,
-                         ),
-
-                       ),
-                     ),
-                   ),
-                   Container(
                      child:  SafeArea(
                        top: false,
                        child: Column(
                          children: [
+                           const SizedBox(height: 20.0,),
                            const Text(
                              "Pickup Destination Address",
                              style: TextStyle(
@@ -589,7 +580,7 @@ class HomePageState extends State<HomePage> {
                            ),
                            const SizedBox(height: 5.0,),
                            Container(
-                             width: 350, // Đặt chiều rộng mong muốn cho FilledButton
+                             width: 350,
                              child: FilledButton(
                                style: FilledButton.styleFrom(
                                  minimumSize: const Size.fromHeight(45.0),
@@ -599,14 +590,17 @@ class HomePageState extends State<HomePage> {
                                  ),
                                ),
                                onPressed: ()  {
+                                 print("Clicked Button");
+                                 _panelController.open();
                                },
                                child: const Row(
                                  mainAxisAlignment: MainAxisAlignment.center,
                                  children: [
+                                   SizedBox(width: 2.0,),
                                    Icon(Icons.map_outlined,color: Colors.white,size: 25,),
                                    SizedBox(width: 10.0,),
                                    Text(
-                                     "Get current location",
+                                     "Search map now",
                                      style: TextStyle(
                                        fontWeight: FontWeight.bold,
                                        fontSize: 15,
@@ -628,8 +622,8 @@ class HomePageState extends State<HomePage> {
             borderRadius: radius,
             minHeight: 150,
 
-
           ),
+
           // Draw button
           /*Positioned(
               left: 0,
