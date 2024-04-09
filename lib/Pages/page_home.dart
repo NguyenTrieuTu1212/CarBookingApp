@@ -49,6 +49,7 @@ class HomePageState extends State<HomePage> {
 
   final PanelController _panelController = PanelController();
 
+  bool _isPanelDraggable = false;
 
 
 
@@ -130,10 +131,12 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  
+
+
   @override
   Widget build(BuildContext context) {
 
+    bool isPanelOpen = false;
     String address = Provider
         .of<AppInfor>(context, listen: false)
         .pickUpAddress
@@ -332,6 +335,16 @@ class HomePageState extends State<HomePage> {
             ),
           ),
          SlidingUpPanel(
+             onPanelOpened: () {
+               setState(() {
+                 _isPanelDraggable = true; // Khi panel mở, cho phép kéo xuống để đóng nó
+               });
+             },
+             onPanelClosed: () {
+               setState(() {
+                 _isPanelDraggable = false; // Khi panel đóng, không cho phép kéo lên để mở lại
+               });
+             },
             controller: _panelController,
             maxHeight: 700,
             panel:  Center(
@@ -547,7 +560,7 @@ class HomePageState extends State<HomePage> {
 
               ),
             ),
-             collapsed: Container(
+            collapsed: Container(
                width: 10,
                decoration: const BoxDecoration(
                  color: Colors.white,
@@ -621,7 +634,7 @@ class HomePageState extends State<HomePage> {
              ),
             borderRadius: radius,
             minHeight: 150,
-
+             isDraggable: _isPanelDraggable,
           ),
 
           // Draw button
@@ -691,6 +704,7 @@ class HomePageState extends State<HomePage> {
     );
 
   }
+
 }
 
 
