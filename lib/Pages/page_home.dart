@@ -170,10 +170,11 @@ class HomePageState extends State<HomePage> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
 
-    bool isPanelOpen = false;
+
     String address = Provider
         .of<AppInfor>(context, listen: false)
         .pickUpAddress
@@ -185,6 +186,18 @@ class HomePageState extends State<HomePage> {
       topRight: Radius.circular(24.0),
     );
 
+    /*ConnectivityResult _connectivityResult = ConnectivityResult.none;
+
+    @override
+    void initState() {
+      super.initState();
+      // Khởi tạo và lắng nghe sự thay đổi kết nối
+      Connectivity().onConnectivityChanged.listen((result) {
+        setState(() {
+          _connectivityResult = result as ConnectivityResult;
+        });
+      });
+    }*/
     return  Scaffold(
       key: sKey,
       drawer: Container(
@@ -639,6 +652,11 @@ class HomePageState extends State<HomePage> {
                                  ),
                                ),
                                onPressed: ()  {
+                                 /*if (_connectivityResult == ConnectivityResult.none){
+                                   commonMethods.DisplayBox(context, "Oopps", "Something went wrong!! Try again in a few minutes", ContentType.failure);
+                                   _panelController.close();
+                                   return;
+                                 }*/
                                  print("Clicked Button");
                                  getCurrentPositionUser();
                                  _panelController.open();
