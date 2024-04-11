@@ -7,6 +7,7 @@ import 'package:app_car_booking/Methods/common_methods.dart';
 import 'package:app_car_booking/Models/AddressModel.dart';
 import 'package:app_car_booking/Pages/search_destination_page.dart';
 import 'package:app_car_booking/Widgets/loading_dialog.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -135,7 +136,7 @@ class HomePageState extends State<HomePage> {
 
 
   fetchClickedPlaceDetail(PanelController _pc,String placeID) async{
-    
+
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -145,10 +146,16 @@ class HomePageState extends State<HomePage> {
     String urlApiPlaceDetail = "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeID&key=$googeMapAPITest";
     var responseFromPlaceDetailApi = await CommonMethods.sendRequestAPI(urlApiPlaceDetail);
 
+
+    if(responseFromPlaceDetailApi == "Error") {
+      commonMethods.DisplayBox(context, "Ooops....", "Something went wrong!! Try again in a few minutes !", ContentType.failure);
+      Navigator.pop(context);
+      return;
+    }
+
     _pc.close();
     Navigator.pop(context);
 
-    if(responseFromPlaceDetailApi == "Error") return;
     if(responseFromPlaceDetailApi["status"] == "OK"){
       AddressModel dropOffAddress = AddressModel();
       
@@ -633,6 +640,7 @@ class HomePageState extends State<HomePage> {
                                ),
                                onPressed: ()  {
                                  print("Clicked Button");
+                                 getCurrentPositionUser();
                                  _panelController.open();
                                },
                                child: const Row(
