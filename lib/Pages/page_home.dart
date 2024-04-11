@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:app_car_booking/Auth/login_screen.dart';
 import 'package:app_car_booking/Methods/common_methods.dart';
+import 'package:app_car_booking/Models/AddressModel.dart';
 import 'package:app_car_booking/Pages/search_destination_page.dart';
+import 'package:app_car_booking/Widgets/loading_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -106,7 +108,7 @@ class HomePageState extends State<HomePage> {
   searchLocation(String locationName) async {
     if (locationName.length > 1) {
       // Get Api from url
-      String urlApi = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$locationName&key=AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg&components=country:vn";
+      String urlApi = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$locationName&key=$googeMapAPITest&components=country:vn";
       var responseFromPlaceApi = await CommonMethods.sendRequestAPI(urlApi) ?? {};
       if (responseFromPlaceApi == "Error") return;
 
@@ -132,6 +134,33 @@ class HomePageState extends State<HomePage> {
   }
 
 
+  fetchClickedPlaceDetail(PanelController _pc,String placeID) async{
+    
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => LoadingDialog(messageText: "Getting Detail......"),
+    );
+    
+    String urlApiPlaceDetail = "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeID&key=$googeMapAPITest";
+    var responseFromPlaceDetailApi = await CommonMethods.sendRequestAPI(urlApiPlaceDetail);
+
+    _pc.close();
+    Navigator.pop(context);
+
+    if(responseFromPlaceDetailApi == "Error") return;
+    if(responseFromPlaceDetailApi["status"] == "OK"){
+      AddressModel dropOffAddress = AddressModel();
+      
+      dropOffAddress.placeName = responseFromPlaceDetailApi["result"]["name"];
+      dropOffAddress.latPosition = responseFromPlaceDetailApi["result"]["geometry"]["location"]["lat"];
+      dropOffAddress.longPosition = responseFromPlaceDetailApi["result"]["geometry"]["location"]["long"];
+      dropOffAddress.placeID = placeID;
+
+      Provider.of<AppInfor>(context, listen: false).updateDropOffAddress(dropOffAddress);
+      print("Place Detail is: " + dropOffAddress.placeName.toString());
+    }
+  }
 
 
   @override
@@ -493,8 +522,10 @@ class HomePageState extends State<HomePage> {
                                   // Khi một ListTile được chọn, cập nhật selectedLocation bằng thông tin tương ứng với index
                                   setState(() {
                                     String selectedLocation = locationListDisplay[index]["description"].toString();
-                                    print("Select is $selectedLocation");
+                                    String placeID = locationListDisplay[index]["place_id"].toString();
+                                    print("Select is $placeID");
                                     destinationTextEditingController.text = selectedLocation.toString();
+                                    fetchClickedPlaceDetail(_panelController,placeID);
                                   });
 
                                 },
