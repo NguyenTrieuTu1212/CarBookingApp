@@ -45,6 +45,8 @@ dependencies:
   http:
   provider:
   sliding_up_panel:
+  google_fonts:
+  get:
 
 dev_dependencies:
   flutter_test:

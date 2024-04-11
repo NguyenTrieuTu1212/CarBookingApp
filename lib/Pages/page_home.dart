@@ -18,12 +18,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../AppInfor/app_info.dart';
 import '../Global/global_var.dart';
 import '../Models/prediction_place_ui.dart';
+import '../Widgets/text_widget.dart';
 
 
 
@@ -48,6 +51,7 @@ class HomePageState extends State<HomePage> {
   TextEditingController pickUpTextEditingController = TextEditingController();
   TextEditingController displayPickUpTextEditingController = TextEditingController();
   TextEditingController destinationTextEditingController = TextEditingController();
+  TextEditingController displayDestinationTextEditingController = TextEditingController();
   List<Map<String,dynamic>> locationListDisplay = [];
 
 
@@ -534,9 +538,11 @@ class HomePageState extends State<HomePage> {
                                     String placeID = locationListDisplay[index]["place_id"].toString();
                                     print("Select is $placeID");
                                     destinationTextEditingController.text = selectedLocation.toString();
+                                    displayDestinationTextEditingController.text = selectedLocation.toString();
                                     fetchClickedPlaceDetail(_panelSearchLocationController,placeID);
                                     _panelBookCarController.show();
                                     _panelSearchLocationController.hide();
+
                                   });
 
                                 },
@@ -719,10 +725,10 @@ class HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Exit",
+                                  "Cancel",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 15,
+                                    fontSize: 16,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -732,7 +738,62 @@ class HomePageState extends State<HomePage> {
                         )
                       ],
                     ),
-                  )
+                  ),
+                  Container(
+                    height: 90,
+                    width: 350, // Assuming Get.width provides the width of the screen
+                    child: StatefulBuilder(builder: (context, set) {
+                      return ListView.builder(
+                        itemBuilder: (ctx, i) {
+                          return InkWell(
+                            onTap: () {
+                              set(() {
+                                selectedRide = i; // Assuming selectedRide is a variable that tracks the index of the selected ride
+                              });
+                            },
+                            child: buildDriverCard(selectedRide == i), // Assuming buildDriverCard is a function that creates a driver card widget
+                          );
+                        },
+                        itemCount: 3, // Assuming there are 3 driver cards
+                        scrollDirection: Axis.horizontal,
+                      );
+                    }),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 7.0),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 5.0,),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(color: Colors.green, width: 1.0),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: SizedBox(
+                              width: 330, // Đây là chiều cao mong muốn
+                              child: TextFormField(
+                                readOnly: true,
+                                controller: displayDestinationTextEditingController,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  prefixIcon: Icon(Icons.location_pin,color: Colors.redAccent,),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 ],
               ),
             ),
@@ -745,6 +806,60 @@ class HomePageState extends State<HomePage> {
     );
 
   }
+
+  int selectedRide = 0;
+  buildDriverCard(bool selected) {
+    return Container(
+      margin: EdgeInsets.only(right: 8, left: 8, top: 4, bottom: 4),
+      height: 85,
+      width: 165,
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+                color: selected
+                    ? Color(0xff2DBB54).withOpacity(0.2)
+                    : Colors.grey.withOpacity(0.2),
+                offset: Offset(0, 5),
+                blurRadius: 5,
+                spreadRadius: 1)
+          ],
+          borderRadius: BorderRadius.circular(12),
+          color: selected ? Color(0xff2DBB54) : Colors.grey),
+      child: Stack(
+        children: [
+          Container(
+            padding: EdgeInsets.only(left: 10, top: 10, bottom: 10, right: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                textWidget(
+                    text: 'Standard',
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700),
+                textWidget(
+                    text: '\$9.90',
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500),
+                textWidget(
+                    text: '3 MIN',
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 12),
+              ],
+            ),
+          ),
+          Positioned(
+              right: -20,
+              top: 0,
+              bottom: 0,
+              child: Image.asset('assets/images/carmask.png'))
+        ],
+      ),
+    );
+  }
 }
+
+
+
 
 
