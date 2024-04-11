@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:app_car_booking/Auth/login_screen.dart';
 import 'package:app_car_booking/Methods/common_methods.dart';
 import 'package:app_car_booking/Models/AddressModel.dart';
@@ -50,8 +51,8 @@ class HomePageState extends State<HomePage> {
   List<Map<String,dynamic>> locationListDisplay = [];
 
 
-  final PanelController _panelController = PanelController();
-
+  final PanelController _panelSearchLocationController = PanelController();
+  final PanelController _panelBookCarController = PanelController();
   bool _isPanelDraggable = false;
 
 
@@ -186,18 +187,6 @@ class HomePageState extends State<HomePage> {
       topRight: Radius.circular(24.0),
     );
 
-    /*ConnectivityResult _connectivityResult = ConnectivityResult.none;
-
-    @override
-    void initState() {
-      super.initState();
-      // Khởi tạo và lắng nghe sự thay đổi kết nối
-      Connectivity().onConnectivityChanged.listen((result) {
-        setState(() {
-          _connectivityResult = result as ConnectivityResult;
-        });
-      });
-    }*/
     return  Scaffold(
       key: sKey,
       drawer: Container(
@@ -384,7 +373,7 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
-         SlidingUpPanel(
+          SlidingUpPanel(
             onPanelOpened: () {
                setState(() {
                  _isPanelDraggable = true; // Khi panel mở, cho phép kéo xuống để đóng nó
@@ -395,7 +384,7 @@ class HomePageState extends State<HomePage> {
                  _isPanelDraggable = false; // Khi panel đóng, không cho phép kéo lên để mở lại
                });
              },
-            controller: _panelController,
+            controller: _panelSearchLocationController,
             maxHeight: 700,
             panel:  Center(
               child: Column(
@@ -545,7 +534,9 @@ class HomePageState extends State<HomePage> {
                                     String placeID = locationListDisplay[index]["place_id"].toString();
                                     print("Select is $placeID");
                                     destinationTextEditingController.text = selectedLocation.toString();
-                                    fetchClickedPlaceDetail(_panelController,placeID);
+                                    fetchClickedPlaceDetail(_panelSearchLocationController,placeID);
+                                    _panelBookCarController.show();
+                                    _panelSearchLocationController.hide();
                                   });
 
                                 },
@@ -652,14 +643,9 @@ class HomePageState extends State<HomePage> {
                                  ),
                                ),
                                onPressed: ()  {
-                                 /*if (_connectivityResult == ConnectivityResult.none){
-                                   commonMethods.DisplayBox(context, "Oopps", "Something went wrong!! Try again in a few minutes", ContentType.failure);
-                                   _panelController.close();
-                                   return;
-                                 }*/
                                  print("Clicked Button");
                                  getCurrentPositionUser();
-                                 _panelController.open();
+                                 _panelSearchLocationController.open();
                                },
                                child: const Row(
                                  mainAxisAlignment: MainAxisAlignment.center,
@@ -689,77 +675,76 @@ class HomePageState extends State<HomePage> {
              ),
             borderRadius: radius,
             minHeight: 150,
-             isDraggable: _isPanelDraggable,
+            isDraggable: _isPanelDraggable,
           ),
-
-          // Draw button
-          /*Positioned(
-              left: 0,
-              right: 0,
-              bottom: -80,
-              child: Container(
-                height: serachContainerHeight,
-                child:  Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children:
-                  [
-                    ElevatedButton(
-                        onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (c)=>SearchDestinationPage()));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(24),
-                        ),
-                        child: const Icon(
-                          Icons.search_rounded,
-                          color: Colors.white,
-                          size: 25,
-                        ),
-                    ),
-                    ElevatedButton(
-                      onPressed: (){
-
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(24),
-                      ),
-                      child: const Icon(
-                        Icons.home,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: (){
-
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(24),
-                      ),
-                      child: const Icon(
-                        Icons.work,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                    )
-                  ],
-                ),
+          SlidingUpPanel(
+            controller: _panelBookCarController,
+            panel: const Center(),
+            collapsed: Container(
+              width: 10,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: radius,
               ),
-          ),*/
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0,vertical: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Select an option : ",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: Colors.black,
+                          ),
+                        ), // Text hiển thị "Select option"
+                        Container(
+                          width: 100,
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(45.0),
+                              backgroundColor: Colors.redAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
+                              ),
+                            ),
+                            onPressed: ()  {
+                              _panelBookCarController.hide();
+                              _panelSearchLocationController.show();
+                            },
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Exit",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+            borderRadius: radius,
+            minHeight: 250,
+            isDraggable: false,
+          ),
         ],
       ),
-
-      // Draw Buttun
     );
 
   }
-
 }
 
 
