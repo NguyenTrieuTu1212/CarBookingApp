@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:app_car_booking/AppInfor/app_info.dart';
+import 'package:app_car_booking/Global/global_var.dart';
+import 'package:app_car_booking/Models/direction_detail_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
@@ -74,7 +77,6 @@ class CommonMethods{
     }
   }
 
-
   static Future<String> convertGeoGraphicsIntoAddress(Position position,BuildContext context) async{
     String address = "";
     // another key API
@@ -90,6 +92,22 @@ class CommonMethods{
     }
     return address;
   }
+
+
+  static Future<DirectionDetailModel> getDirectionDetail(LatLng source, LatLng destination) async{
+
+    String urlAPIDirectionDetail = "https://maps.googleapis.com/maps/api/directions/json?origin=${source.latitude},${source.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=$googeMapAPITest";
+    var responseFromApiDirectionDetail = await sendRequestAPI(urlAPIDirectionDetail);
+    DirectionDetailModel detailModels = DirectionDetailModel();
+    if(responseFromApiDirectionDetail != "Error"){
+      detailModels.distanceText = responseFromApiDirectionDetail["routes"][0]["legs"][0]["distance"]["text"];
+      detailModels.digitDistance = responseFromApiDirectionDetail["routes"][0]["legs"][0]["distance"]["value"];
+      detailModels.timeDurationText =  responseFromApiDirectionDetail["routes"][0]["legs"][0]["duration"]["text"];
+      detailModels.digitTimeDuration = responseFromApiDirectionDetail["routes"][0]["legs"][0]["duration"]["value"];
+    }
+    return detailModels;
+  }
+
 
 
 

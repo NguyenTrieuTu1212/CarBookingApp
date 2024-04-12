@@ -6,7 +6,7 @@ import 'dart:ui';
 import 'package:app_car_booking/Auth/login_screen.dart';
 import 'package:app_car_booking/Methods/common_methods.dart';
 import 'package:app_car_booking/Models/AddressModel.dart';
-import 'package:app_car_booking/Pages/search_destination_page.dart';
+import 'package:app_car_booking/Models/direction_detail_model.dart';
 import 'package:app_car_booking/Widgets/loading_dialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +26,6 @@ import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../AppInfor/app_info.dart';
 import '../Global/global_var.dart';
-import '../Models/prediction_place_ui.dart';
 import '../Widgets/text_widget.dart';
 
 
@@ -48,7 +47,6 @@ class HomePageState extends State<HomePage> {
   double serachContainerHeight = 276;
 
 
-
   TextEditingController pickUpTextEditingController = TextEditingController();
   TextEditingController displayPickUpTextEditingController = TextEditingController();
   TextEditingController destinationTextEditingController = TextEditingController();
@@ -60,25 +58,21 @@ class HomePageState extends State<HomePage> {
   final PanelController _panelBookCarController = PanelController();
   bool _isPanelDraggable = false;
 
+  DirectionDetailModel? tripDirectionDetailModel;
 
-
-  void updateMapTheme(GoogleMapController controller)
-  {
+  void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
   }
 
-  Future<String> getJsonFileFromThemes(String mapStylePath) async
-  {
+  Future<String> getJsonFileFromThemes(String mapStylePath) async {
     ByteData byteData = await rootBundle.load(mapStylePath);
     var list = byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
     return utf8.decode(list);
   }
 
-  setGoogleMapStyle(String googleMapStyle, GoogleMapController controller)
-  {
+  setGoogleMapStyle(String googleMapStyle, GoogleMapController controller) {
     controller.setMapStyle(googleMapStyle);
   }
-
 
   getCurrentPositionUser() async{
     Position posCurrentUsr = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
@@ -89,7 +83,6 @@ class HomePageState extends State<HomePage> {
     await CommonMethods.convertGeoGraphicsIntoAddress(currentPosOfUser!, context);
     await getStatusOfUser();
   }
-
 
   getStatusOfUser() async{
     DatabaseReference usrRef = FirebaseDatabase.instance.ref()
@@ -110,7 +103,6 @@ class HomePageState extends State<HomePage> {
       }
     });
   }
-
 
   searchLocation(String locationName) async {
     if (locationName.length > 1) {
@@ -140,7 +132,6 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-
   fetchClickedPlaceDetail(PanelController _pc,String placeID) async{
 
     showDialog(
@@ -167,14 +158,52 @@ class HomePageState extends State<HomePage> {
       
       dropOffAddress.placeName = responseFromPlaceDetailApi["result"]["name"];
       dropOffAddress.latPosition = responseFromPlaceDetailApi["result"]["geometry"]["location"]["lat"];
-      dropOffAddress.longPosition = responseFromPlaceDetailApi["result"]["geometry"]["location"]["long"];
+      dropOffAddress.longPosition = responseFromPlaceDetailApi["result"]["geometry"]["location"]["lng"];
       dropOffAddress.placeID = placeID;
 
       Provider.of<AppInfor>(context, listen: false).updateDropOffAddress(dropOffAddress);
-      print("Place Detail is: " + dropOffAddress.placeName.toString());
+      print("Place Detail is: " + dropOffAddress.latPosition.toString());
     }
   }
 
+
+
+  /*displayDirectionDetailAPI() async{
+    var pickupGeoAddress = Provider.of<AppInfor>(context,listen: false).pickUpAddress;
+    var dropOffGeoAddress = Provider.of<AppInfor>(context,listen: false).dropOffAddress;
+
+    var pickupCoordinates = LatLng(pickupGeoAddress!.latPosition!, pickupGeoAddress.longPosition!);
+    var dropOffCoordinates = LatLng(dropOffGeoAddress!.latPosition!, dropOffGeoAddress.longPosition!);
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => LoadingDialog(messageText: "Getting direction....."),
+    );
+    var detailnModel = await CommonMethods.getDirectionDetail(pickupCoordinates, dropOffCoordinates);
+    directionDetailModel = detailnModel;
+    print("Direction model is : " + directionDetailModel!.distanceText.toString());
+  }*/
+
+  displayResponeAPI() async{
+    var pickupGeoAddress = Provider.of<AppInfor>(context,listen: false).pickUpAddress;
+    var dropOffGeoAddress = Provider.of<AppInfor>(context,listen: false).dropOffAddress;
+
+    var pickupCoordinates = LatLng(pickupGeoAddress!.latPosition!, pickupGeoAddress.longPosition!);
+    var dropOffCoordinates = LatLng(dropOffGeoAddress!.latPosition!, dropOffGeoAddress.longPosition!);
+
+
+    /*String urlDetailDirection ="https://maps.googleapis.com/maps/api/directions/json?origin=${pickupCoordinates.latitude},${pickupCoordinates.longitude}&destination=${dropOffCoordinates.latitude},${dropOffCoordinates.longitude}&mode=driving&key=AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg";
+
+    var respone = await CommonMethods.sendRequestAPI(urlDetailDirection);
+    if(respone == "Error") return;
+    print("Drop off lat is: " + dropOffGeoAddress.latPosition.toString() + " " + dropOffGeoAddress.longPosition.toString());
+    print("Reponse API detail trip is: " + respone!.toString());*/
+
+    DirectionDetailModel directionDetailModel = DirectionDetailModel();
+
+
+  }
 
 
   @override
@@ -544,7 +573,6 @@ class HomePageState extends State<HomePage> {
                                     fetchClickedPlaceDetail(_panelSearchLocationController,placeID);
                                     _panelBookCarController.show();
                                     _panelSearchLocationController.hide();
-
                                   });
 
                                 },
@@ -804,7 +832,7 @@ class HomePageState extends State<HomePage> {
 
                             ),
                             onPressed: () {
-                              // Xử lý sự kiện khi nút được nhấn
+                              displayResponeAPI();
                             },
                             child: const Text(
                                 "Confirm",
@@ -834,9 +862,6 @@ class HomePageState extends State<HomePage> {
     );
 
   }
-
-
-
   int selectedRide = 0;
   buildDriverCard(bool selected) {
     return Container(
@@ -862,16 +887,21 @@ class HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                textWidget(
+                /*textWidget(
                     text: 'Standard',
                     color: Colors.white,
-                    fontWeight: FontWeight.w700),
+                    fontWeight: FontWeight.w700),*/
                 textWidget(
                     text: '\$9.90',
                     color: Colors.white,
-                    fontWeight: FontWeight.w500),
+                    fontWeight: FontWeight.w700),
                 textWidget(
-                    text: '3 MIN',
+                    text:  tripDirectionDetailModel?.timeDurationText.toString() ?? "0 MIN",
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 12),
+                textWidget(
+                    text: tripDirectionDetailModel?.distanceText.toString() ?? "0 KM",
                     color: Colors.white.withOpacity(0.8),
                     fontWeight: FontWeight.normal,
                     fontSize: 12),
