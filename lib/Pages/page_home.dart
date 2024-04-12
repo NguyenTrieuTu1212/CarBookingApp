@@ -14,6 +14,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -190,6 +191,7 @@ class HomePageState extends State<HomePage> {
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
     );
+
 
     return  Scaffold(
       key: sKey,
@@ -761,8 +763,8 @@ class HomePageState extends State<HomePage> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 7.0),
-                      child: Column(
+                      padding: const EdgeInsets.only(left: 40.0),
+                      child: Row(
                         children: [
                           const SizedBox(height: 5.0,),
                           Container(
@@ -773,7 +775,7 @@ class HomePageState extends State<HomePage> {
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: SizedBox(
-                              width: 330, // Đây là chiều cao mong muốn
+                              width: 210, // Đây là chiều cao mong muốn
                               child: TextFormField(
                                 readOnly: true,
                                 controller: displayDestinationTextEditingController,
@@ -789,10 +791,36 @@ class HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 10), // Khoảng cách giữa hộp và nút
+                          FilledButton(
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0), // Đây là đoạn mã để bo góc
+                                ),
+                              ),
+                              backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                              minimumSize: MaterialStateProperty.all<Size>(Size(20, 50)), // Đặt kích thước nút 200x50
+
+                            ),
+                            onPressed: () {
+                              // Xử lý sự kiện khi nút được nhấn
+                            },
+                            child: const Text(
+                                "Confirm",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                            ), // Văn bản trên nút
+                          ),
+
                         ],
                       ),
                     ),
                   ),
+
 
                 ],
               ),
@@ -806,6 +834,8 @@ class HomePageState extends State<HomePage> {
     );
 
   }
+
+
 
   int selectedRide = 0;
   buildDriverCard(bool selected) {
