@@ -59,6 +59,30 @@ class CommonMethods{
     } else return "";
   }
 
+  static String convertTimeFormat(String inputString){
+    String timeConvert = "";
+
+    for(int i=0;i<inputString.length;i++){
+      List<String?> numbers = RegExp(r'\d+').allMatches(inputString).map((match) => match.group(0)).toList();
+
+      if (numbers.length == 1) {
+        if (inputString.contains("hour")) {
+          return "${numbers[0]} h";
+        }
+        else {
+          return "${numbers[0]} min";
+        }
+      }
+
+      else if (numbers.length == 2) {
+        return "${numbers[0]}h ${numbers[1]}min";
+      }
+      else {
+        return "Invalid input";
+      }
+    }
+    return timeConvert;
+  }
   static sendRequestAPI(String apiUrl) async{
     http.Response reponseFromApi = await http.get(Uri.parse(apiUrl));
     try

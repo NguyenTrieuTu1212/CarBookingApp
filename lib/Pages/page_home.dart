@@ -143,7 +143,6 @@ class HomePageState extends State<HomePage> {
     String urlApiPlaceDetail = "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeID&key=$googeMapAPITest";
     var responseFromPlaceDetailApi = await CommonMethods.sendRequestAPI(urlApiPlaceDetail);
 
-
     if(responseFromPlaceDetailApi == "Error") {
       commonMethods.DisplayBox(context, "Ooops....", "Something went wrong!! Try again in a few minutes !", ContentType.failure);
       Navigator.pop(context);
@@ -164,6 +163,7 @@ class HomePageState extends State<HomePage> {
       Provider.of<AppInfor>(context, listen: false).updateDropOffAddress(dropOffAddress);
       print("Place Detail is: " + dropOffAddress.latPosition.toString());
     }
+    displayResponeAPI();
   }
 
 
@@ -193,6 +193,15 @@ class HomePageState extends State<HomePage> {
     var dropOffCoordinates = LatLng(dropOffGeoAddress!.latPosition!, dropOffGeoAddress.longPosition!);
 
 
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context)=> LoadingDialog(messageText: "Getting Direction......."),
+    );
+
+    _panelSearchLocationController.close();
+    Navigator.pop(context);
+
     /*String urlDetailDirection ="https://maps.googleapis.com/maps/api/directions/json?origin=${pickupCoordinates.latitude},${pickupCoordinates.longitude}&destination=${dropOffCoordinates.latitude},${dropOffCoordinates.longitude}&mode=driving&key=AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg";
 
     var respone = await CommonMethods.sendRequestAPI(urlDetailDirection);
@@ -200,9 +209,10 @@ class HomePageState extends State<HomePage> {
     print("Drop off lat is: " + dropOffGeoAddress.latPosition.toString() + " " + dropOffGeoAddress.longPosition.toString());
     print("Reponse API detail trip is: " + respone!.toString());*/
 
-    DirectionDetailModel directionDetailModel = DirectionDetailModel();
-
-
+    var detailDirectionModel = await CommonMethods.getDirectionDetail(pickupCoordinates, dropOffCoordinates);
+    setState(() {
+      tripDirectionDetailModel = detailDirectionModel;
+    });
   }
 
 
@@ -806,6 +816,9 @@ class HomePageState extends State<HomePage> {
                               width: 210, // Đây là chiều cao mong muốn
                               child: TextFormField(
                                 readOnly: true,
+                                onTap: (){
+
+                                },
                                 controller: displayDestinationTextEditingController,
                                 style: const TextStyle(
                                   color: Colors.black,
@@ -896,7 +909,7 @@ class HomePageState extends State<HomePage> {
                     color: Colors.white,
                     fontWeight: FontWeight.w700),
                 textWidget(
-                    text:  tripDirectionDetailModel?.timeDurationText.toString() ?? "0 MIN",
+                    text:  CommonMethods.convertTimeFormat(tripDirectionDetailModel?.timeDurationText.toString() ?? "0 MIN"),
                     color: Colors.white.withOpacity(0.8),
                     fontWeight: FontWeight.normal,
                     fontSize: 12),
