@@ -46,7 +46,7 @@ class HomePageState extends State<HomePage> {
   Position? currentPosOfUser;
   double serachContainerHeight = 276;
 
-
+  // Select location pick up and drop off
   TextEditingController pickUpTextEditingController = TextEditingController();
   TextEditingController displayPickUpTextEditingController = TextEditingController();
   TextEditingController destinationTextEditingController = TextEditingController();
@@ -54,11 +54,14 @@ class HomePageState extends State<HomePage> {
   List<Map<String,dynamic>> locationListDisplay = [];
 
 
+  // Sliding Panel
   final PanelController _panelSearchLocationController = PanelController();
   final PanelController _panelBookCarController = PanelController();
   bool _isPanelDraggable = false;
 
+
   DirectionDetailModel? tripDirectionDetailModel;
+
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -163,29 +166,10 @@ class HomePageState extends State<HomePage> {
       Provider.of<AppInfor>(context, listen: false).updateDropOffAddress(dropOffAddress);
       print("Place Detail is: " + dropOffAddress.latPosition.toString());
     }
-    displayResponeAPI();
+    displayDirectionDetailTrip();
   }
 
-
-
-  /*displayDirectionDetailAPI() async{
-    var pickupGeoAddress = Provider.of<AppInfor>(context,listen: false).pickUpAddress;
-    var dropOffGeoAddress = Provider.of<AppInfor>(context,listen: false).dropOffAddress;
-
-    var pickupCoordinates = LatLng(pickupGeoAddress!.latPosition!, pickupGeoAddress.longPosition!);
-    var dropOffCoordinates = LatLng(dropOffGeoAddress!.latPosition!, dropOffGeoAddress.longPosition!);
-
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) => LoadingDialog(messageText: "Getting direction....."),
-    );
-    var detailnModel = await CommonMethods.getDirectionDetail(pickupCoordinates, dropOffCoordinates);
-    directionDetailModel = detailnModel;
-    print("Direction model is : " + directionDetailModel!.distanceText.toString());
-  }*/
-
-  displayResponeAPI() async{
+  displayDirectionDetailTrip() async{
     var pickupGeoAddress = Provider.of<AppInfor>(context,listen: false).pickUpAddress;
     var dropOffGeoAddress = Provider.of<AppInfor>(context,listen: false).dropOffAddress;
 
@@ -217,8 +201,16 @@ class HomePageState extends State<HomePage> {
 
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _panelBookCarController.hide();
+      _panelSearchLocationController.show();
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
 
     String address = Provider
         .of<AppInfor>(context, listen: false)
@@ -230,7 +222,6 @@ class HomePageState extends State<HomePage> {
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
     );
-
 
     return  Scaffold(
       key: sKey,
@@ -337,7 +328,6 @@ class HomePageState extends State<HomePage> {
       ),
       body: Stack(
         children: [
-
           GoogleMap(
             mapType: MapType.normal,
             myLocationEnabled: true,
@@ -351,7 +341,6 @@ class HomePageState extends State<HomePage> {
               getCurrentPositionUser();
             },
           ),
-
           Positioned(
             top: 36,
             left: 19,
@@ -804,33 +793,50 @@ class HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.only(left: 40.0),
                       child: Row(
                         children: [
-                          const SizedBox(height: 5.0,),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8.0),
-                              border: Border.all(color: Colors.green, width: 1.0),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: SizedBox(
-                              width: 210, // Đây là chiều cao mong muốn
-                              child: TextFormField(
-                                readOnly: true,
-                                onTap: (){
-
-                                },
-                                controller: displayDestinationTextEditingController,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
+                          const SizedBox(height: 2.0,),
+                          Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  border: Border.all(color: Colors.green, width: 1.0),
                                 ),
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  prefixIcon: Icon(Icons.location_pin,color: Colors.redAccent,),
-                                  border: InputBorder.none,
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: SizedBox(
+                                  width: 210, // Đây là chiều cao mong muốn
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    controller: displayDestinationTextEditingController,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      isDense: true,
+                                      prefixIcon: Icon(Icons.location_pin,color: Colors.redAccent,),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                              Positioned.fill(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    _panelSearchLocationController.show();
+                                    await Future.delayed(Duration(milliseconds: 100)); // Chờ 0.1 giây để đảm bảo hiệu ứng hoạt động trước khi mở panel tiếp theo
+                                    _panelSearchLocationController.open();
+                                    await Future.delayed(Duration(milliseconds: 100)); // Tương tự, chờ 0.1 giây trước khi ẩn panel khác
+                                    _panelBookCarController.hide();
+                                  },
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.transparent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(width: 10), // Khoảng cách giữa hộp và nút
                           FilledButton(
@@ -840,23 +846,22 @@ class HomePageState extends State<HomePage> {
                                   borderRadius: BorderRadius.circular(12.0), // Đây là đoạn mã để bo góc
                                 ),
                               ),
-                              backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                              backgroundColor: MaterialStateProperty.all<Color>(Color(0xff2DBB54)),
                               minimumSize: MaterialStateProperty.all<Size>(Size(20, 50)), // Đặt kích thước nút 200x50
 
                             ),
                             onPressed: () {
-                              displayResponeAPI();
+
                             },
                             child: const Text(
-                                "Confirm",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
+                              "Confirm",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                              ),
                             ), // Văn bản trên nút
                           ),
-
                         ],
                       ),
                     ),
