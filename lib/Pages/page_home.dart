@@ -47,6 +47,7 @@ class HomePageState extends State<HomePage> {
   Position? currentPosOfUser;
   double serachContainerHeight = 276;
 
+
   // Select location pick up and drop off
   TextEditingController pickUpTextEditingController = TextEditingController();
   TextEditingController displayPickUpTextEditingController = TextEditingController();
@@ -62,6 +63,10 @@ class HomePageState extends State<HomePage> {
 
 
   DirectionDetailModel? tripDirectionDetailModel;
+
+
+  LatLng? lstlngTest;
+
 
 
   void updateMapTheme(GoogleMapController controller) {
@@ -215,8 +220,11 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
+
 
     String address = Provider
         .of<AppInfor>(context, listen: false)
