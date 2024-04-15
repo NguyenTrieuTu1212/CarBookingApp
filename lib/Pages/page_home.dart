@@ -139,11 +139,11 @@ class HomePageState extends State<HomePage> {
   fetchClickedPlaceDetail(PanelController _pc,String placeID) async{
 
     showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) => LoadingDialog(messageText: "Getting Detail......"),
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => LoadingDialog(messageText: "Getting Detail......"),
     );
-    
+
     String urlApiPlaceDetail = "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeID&key=$googeMapAPITest";
     var responseFromPlaceDetailApi = await CommonMethods.sendRequestAPI(urlApiPlaceDetail);
 
@@ -158,7 +158,7 @@ class HomePageState extends State<HomePage> {
 
     if(responseFromPlaceDetailApi["status"] == "OK"){
       AddressModel dropOffAddress = AddressModel();
-      
+
       dropOffAddress.placeName = responseFromPlaceDetailApi["result"]["name"];
       dropOffAddress.latPosition = responseFromPlaceDetailApi["result"]["geometry"]["location"]["lat"];
       dropOffAddress.longPosition = responseFromPlaceDetailApi["result"]["geometry"]["location"]["lng"];
@@ -179,9 +179,9 @@ class HomePageState extends State<HomePage> {
 
 
     showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context)=> LoadingDialog(messageText: "Getting Direction......."),
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context)=> LoadingDialog(messageText: "Getting Direction......."),
     );
 
     _panelSearchLocationController.close();
@@ -414,15 +414,15 @@ class HomePageState extends State<HomePage> {
           ),
           SlidingUpPanel(
             onPanelOpened: () {
-               setState(() {
-                 _isPanelDraggable = true; // Khi panel mở, cho phép kéo xuống để đóng nó
-               });
-             },
+              setState(() {
+                _isPanelDraggable = true; // Khi panel mở, cho phép kéo xuống để đóng nó
+              });
+            },
             onPanelClosed: () {
-               setState(() {
-                 _isPanelDraggable = false; // Khi panel đóng, không cho phép kéo lên để mở lại
-               });
-             },
+              setState(() {
+                _isPanelDraggable = false; // Khi panel đóng, không cho phép kéo lên để mở lại
+              });
+            },
             controller: _panelSearchLocationController,
             maxHeight: 700,
             panel:  Center(
@@ -444,17 +444,17 @@ class HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(height: 4.0,),
-                   SafeArea(
+                  SafeArea(
                     top: false,
                     child: Column(
                       children: [
                         const Text(
-                            "Set your destination",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              fontSize: 25,
-                            ),
+                          "Set your destination",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 25,
+                          ),
                         ),
                         const SizedBox(height: 4.0,),
                         const Text(
@@ -582,21 +582,21 @@ class HomePageState extends State<HomePage> {
                                 },
                                 leading: const Icon(Icons.location_on),
                                 title: Text(
-                                     locationListDisplay[index]["description"].toString(),
-                                     style: const TextStyle(
-                                       fontWeight: FontWeight.bold,
-                                       color: Colors.black,
-                                     ),
+                                  locationListDisplay[index]["description"].toString(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       locationListDisplay[index]["structured_formatting"]["secondary_text"].toString(),
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey,
-                                        ),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                     Container(
                                       height: 1,
@@ -627,12 +627,12 @@ class HomePageState extends State<HomePage> {
                         // Hành động khi nút được nhấn
                       },
                       child: const Text(
-                          "Confirm destination",
-                           style: TextStyle(
-                             fontWeight: FontWeight.bold,
-                             fontSize: 15,
-                             color: Colors.black87,
-                           ),
+                        "Confirm destination",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                   )
@@ -641,78 +641,78 @@ class HomePageState extends State<HomePage> {
               ),
             ),
             collapsed: Container(
-               width: 10,
-               decoration: const BoxDecoration(
-                 color: Colors.white,
-                 borderRadius: radius,
-               ),
-               child:  Column(
-                 mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
-                 children: [
-                   Container(
-                     child:  SafeArea(
-                       top: false,
-                       child: Column(
-                         children: [
-                           const SizedBox(height: 20.0,),
-                           const Text(
-                             "Pickup Destination Address",
-                             style: TextStyle(
-                               fontWeight: FontWeight.bold,
-                               color: Colors.black87,
-                               fontSize: 20.0,
-                             ),
-                           ),
-                           const Text(
-                             "Drag the map to move a pin",
-                             style: TextStyle(
-                               fontWeight: FontWeight.normal,
-                               color: Colors.grey,
-                               fontSize: 15.0,
-                             ),
-                           ),
-                           const SizedBox(height: 5.0,),
-                           Container(
-                             width: 350,
-                             child: FilledButton(
-                               style: FilledButton.styleFrom(
-                                 minimumSize: const Size.fromHeight(45.0),
-                                 backgroundColor: Colors.green,
-                                 shape: RoundedRectangleBorder(
-                                   borderRadius: BorderRadius.circular(5.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
-                                 ),
-                               ),
-                               onPressed: ()  {
-                                 print("Clicked Button");
-                                 getCurrentPositionUser();
-                                 _panelSearchLocationController.open();
-                               },
-                               child: const Row(
-                                 mainAxisAlignment: MainAxisAlignment.center,
-                                 children: [
-                                   SizedBox(width: 2.0,),
-                                   Icon(Icons.map_outlined,color: Colors.white,size: 25,),
-                                   SizedBox(width: 10.0,),
-                                   Text(
-                                     "Search map now",
-                                     style: TextStyle(
-                                       fontWeight: FontWeight.bold,
-                                       fontSize: 15,
-                                       color: Colors.black87,
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                             ),
-                           )
-                         ],
-                       ),
-                     ),
-                   )
-                 ],
-               ),
+              width: 10,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: radius,
+              ),
+              child:  Column(
+                mainAxisAlignment: MainAxisAlignment.start, // Đẩy biểu tượng lên phía trên
+                children: [
+                  Container(
+                    child:  SafeArea(
+                      top: false,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20.0,),
+                          const Text(
+                            "Pickup Destination Address",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                          const Text(
+                            "Drag the map to move a pin",
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey,
+                              fontSize: 15.0,
+                            ),
+                          ),
+                          const SizedBox(height: 5.0,),
+                          Container(
+                            width: 350,
+                            child: FilledButton(
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size.fromHeight(45.0),
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
+                                ),
+                              ),
+                              onPressed: ()  {
+                                print("Clicked Button");
+                                getCurrentPositionUser();
+                                _panelSearchLocationController.open();
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(width: 2.0,),
+                                  Icon(Icons.map_outlined,color: Colors.white,size: 25,),
+                                  SizedBox(width: 10.0,),
+                                  Text(
+                                    "Search map now",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
 
-             ),
+            ),
             borderRadius: radius,
             minHeight: 150,
             isDraggable: _isPanelDraggable,
@@ -940,8 +940,3 @@ class HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-
-
