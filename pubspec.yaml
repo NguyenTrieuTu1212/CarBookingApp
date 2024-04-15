@@ -47,6 +47,7 @@ dependencies:
   sliding_up_panel:
   google_fonts:
   get:
+  flutter_polyline_points:
 
 dev_dependencies:
   flutter_test:

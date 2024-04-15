@@ -27,6 +27,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../AppInfor/app_info.dart';
 import '../Global/global_var.dart';
 import '../Widgets/text_widget.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 
 
@@ -197,6 +198,11 @@ class HomePageState extends State<HomePage> {
     setState(() {
       tripDirectionDetailModel = detailDirectionModel;
     });
+
+
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> listLatLngPolylinePoints = polylinePoints.decodePolyline(tripDirectionDetailModel!.encodedPoint!);
+
   }
 
 
@@ -222,8 +228,7 @@ class HomePageState extends State<HomePage> {
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
     );
-
-    return  Scaffold(
+    return Scaffold(
       key: sKey,
       drawer: Container(
         width: 255,
@@ -878,7 +883,6 @@ class HomePageState extends State<HomePage> {
         ],
       ),
     );
-
   }
   int selectedRide = 0;
   buildDriverCard(bool selected) {
@@ -910,7 +914,7 @@ class HomePageState extends State<HomePage> {
                     color: Colors.white,
                     fontWeight: FontWeight.w700),*/
                 textWidget(
-                    text: /*'\$9.90'*/ CommonMethods.convertFromKilometersToMoney(tripDirectionDetailModel!.digitDistance!).toString(),
+                    text: (tripDirectionDetailModel!=null) ? "${CommonMethods.convertFromKilometersToMoney(tripDirectionDetailModel!.digitDistance!).toString()} VND" : "O vnd",
                     color: Colors.white,
                     fontWeight: FontWeight.w700),
                 textWidget(

@@ -134,10 +134,10 @@ class CommonMethods{
       detailModels.digitDistance = responseFromApiDirectionDetail["routes"][0]["legs"][0]["distance"]["value"];
       detailModels.timeDurationText =  responseFromApiDirectionDetail["routes"][0]["legs"][0]["duration"]["text"];
       detailModels.digitTimeDuration = responseFromApiDirectionDetail["routes"][0]["legs"][0]["duration"]["value"];
+      detailModels.encodedPoint = responseFromApiDirectionDetail["routes"][0]["overview_polyline"]["points"];
     }
     return detailModels;
   }
-
 
   // (0,2] km => Price : 12000
   // [3,5] Km => Price : 3800vnd/1km
@@ -161,14 +161,9 @@ class CommonMethods{
     }
     return 0;
   }
-
-
   static int calculateTheNumberOfMetersLeftOver(int meters,int cost){
-    double m = meters/1000.0;
-    double costToPay = m * cost;
-    return costToPay.toInt();
+    /*double m = meters/1000.0;
+    double costToPay = m * cost;*/
+    return ((meters/1000.0) * cost).toInt();
   }
-
-
-
 }
