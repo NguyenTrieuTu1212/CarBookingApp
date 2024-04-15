@@ -910,7 +910,7 @@ class HomePageState extends State<HomePage> {
                     color: Colors.white,
                     fontWeight: FontWeight.w700),*/
                 textWidget(
-                    text: '\$9.90',
+                    text: /*'\$9.90'*/ CommonMethods.convertFromKilometersToMoney(tripDirectionDetailModel!.digitDistance!).toString(),
                     color: Colors.white,
                     fontWeight: FontWeight.w700),
                 textWidget(

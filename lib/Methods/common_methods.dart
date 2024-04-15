@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:ui';
 import 'package:app_car_booking/AppInfor/app_info.dart';
 import 'package:app_car_booking/Global/global_var.dart';
@@ -13,6 +14,19 @@ import 'package:provider/provider.dart';
 
 import '../Models/AddressModel.dart';
 
+
+
+
+const int level1 = 2;
+const int level2 = 5;
+const int level3 = 100;
+
+const int costInLevel1 = 12000;
+const int costInLevel2 = 3800;
+const int costInLevel3 = 3100;
+
+const double discount =0.2;
+
 class CommonMethods{
   checkConnectivity(BuildContext context) async{
     var connectionResult = await Connectivity().checkConnectivity();
@@ -21,13 +35,10 @@ class CommonMethods{
       DisplayBox(context, "Oh No !!!! ", "Connection errors!! Please check the connection",ContentType.warning);
     }*/
   }
-
-
   DisplaySnackBar(String message,BuildContext context){
     var snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
-
   DisplayBox(BuildContext context,String titleOfBox, String messageOfBox, ContentType contentTypeOfBox){
     final materialBanner = MaterialBanner(
       elevation: 0,
@@ -49,7 +60,6 @@ class CommonMethods{
       ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
     });
   }
-
   String extractContent(String inputString) {
     int startIndex = inputString.indexOf("[");
     int endIndex = inputString.indexOf("]");
@@ -58,7 +68,6 @@ class CommonMethods{
       return inputString.substring(endIndex + 1).trim();
     } else return "";
   }
-
   static String convertTimeFormat(String inputString){
     String timeConvert = "";
 
@@ -100,7 +109,6 @@ class CommonMethods{
       return "Error";
     }
   }
-
   static Future<String> convertGeoGraphicsIntoAddress(Position position,BuildContext context) async{
     String address = "";
     // another key API
@@ -116,8 +124,6 @@ class CommonMethods{
     }
     return address;
   }
-
-
   static Future<DirectionDetailModel> getDirectionDetail(LatLng source, LatLng destination) async{
 
     String urlAPIDirectionDetail = "https://maps.googleapis.com/maps/api/directions/json?origin=${source.latitude},${source.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=$googeMapAPITest";
@@ -132,6 +138,36 @@ class CommonMethods{
     return detailModels;
   }
 
+
+  // (0,2] km => Price : 12000
+  // [3,5] Km => Price : 3800vnd/1km
+  // (5,infinity) km => Price : 3100vnd/1km
+  static int convertFromKilometersToMoney(int amountKilometers){
+    int moneyHaveToPay = 0;
+    int km = amountKilometers~/1000.0;
+    int m = amountKilometers%1000 ;
+
+    if(km <= level1){
+      costInLevel1 + calculateTheNumberOfMetersLeftOver(m,level1);
+    }else
+    {
+      if(km <= level2){
+        return costInLevel1 + (km - level1) * costInLevel2 + calculateTheNumberOfMetersLeftOver(m, costInLevel2);
+      }else{
+        moneyHaveToPay = costInLevel1 + (level2 - level1) * costInLevel2 + (km - level2) * costInLevel3 + calculateTheNumberOfMetersLeftOver(m, costInLevel3);
+        if(km > 100) return (moneyHaveToPay * (1-discount)).toInt();
+        return moneyHaveToPay;
+      }
+    }
+    return 0;
+  }
+
+
+  static int calculateTheNumberOfMetersLeftOver(int meters,int cost){
+    double m = meters/1000.0;
+    double costToPay = m * cost;
+    return costToPay.toInt();
+  }
 
 
 
