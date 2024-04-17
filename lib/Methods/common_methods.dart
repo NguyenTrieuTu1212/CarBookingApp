@@ -23,7 +23,7 @@ const int level3 = 100;
 
 const int costInLevel1 = 12000;
 const int costInLevel2 = 3800;
-const int costInLevel3 = 3100;
+const int costInLevel3 = 4000;
 
 const double discount =0.2;
 

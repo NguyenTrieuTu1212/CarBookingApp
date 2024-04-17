@@ -69,6 +69,7 @@ class HomePageState extends State<HomePage> {
   List<LatLng> listcoOrdinates = [];
   Set<Polyline> polylineSet ={};
   Set<Marker> setMarker = {};
+  Set<Circle> setCircal ={};
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -280,6 +281,19 @@ class HomePageState extends State<HomePage> {
       setMarker.add(dropOffMarker);
     });
 
+
+    Circle circlePickUpLocation = Circle(
+      circleId: const CircleId("Pick up circel"),
+      center: pickupCoordinates,
+      strokeColor: Colors.greenAccent,
+      strokeWidth: 4,
+      fillColor: Colors.greenAccent,
+      radius: 20,
+
+    );
+    setState(() {
+      setCircal.add(circlePickUpLocation);
+    });
   }
 
 
@@ -293,8 +307,6 @@ class HomePageState extends State<HomePage> {
       _panelSearchLocationController.show();
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -418,6 +430,7 @@ class HomePageState extends State<HomePage> {
             myLocationEnabled: true,
             polylines: polylineSet,
             markers: setMarker,
+            circles: setCircal,
             myLocationButtonEnabled: false,
             initialCameraPosition: googleInitPos,
             zoomControlsEnabled: false,
