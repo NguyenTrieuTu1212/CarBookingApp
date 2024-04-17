@@ -65,9 +65,10 @@ class HomePageState extends State<HomePage> {
   DirectionDetailModel? tripDirectionDetailModel;
 
 
-  LatLng? lstlngTest;
 
-
+  List<LatLng> listcoOrdinates = [];
+  Set<Polyline> polylineSet ={};
+  Set<Marker> setMarker = {};
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -192,12 +193,6 @@ class HomePageState extends State<HomePage> {
     _panelSearchLocationController.close();
     Navigator.pop(context);
 
-    /*String urlDetailDirection ="https://maps.googleapis.com/maps/api/directions/json?origin=${pickupCoordinates.latitude},${pickupCoordinates.longitude}&destination=${dropOffCoordinates.latitude},${dropOffCoordinates.longitude}&mode=driving&key=AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg";
-
-    var respone = await CommonMethods.sendRequestAPI(urlDetailDirection);
-    if(respone == "Error") return;
-    print("Drop off lat is: " + dropOffGeoAddress.latPosition.toString() + " " + dropOffGeoAddress.longPosition.toString());
-    print("Reponse API detail trip is: " + respone!.toString());*/
 
     var detailDirectionModel = await CommonMethods.getDirectionDetail(pickupCoordinates, dropOffCoordinates);
     setState(() {
@@ -207,8 +202,87 @@ class HomePageState extends State<HomePage> {
 
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> listLatLngPolylinePoints = polylinePoints.decodePolyline(tripDirectionDetailModel!.encodedPoint!);
+    print(listLatLngPolylinePoints);
+
+
+    listcoOrdinates.clear();
+    if(listLatLngPolylinePoints.isNotEmpty){
+      listLatLngPolylinePoints.forEach((PointLatLng pointLatLng) {
+              listcoOrdinates.add(
+                  LatLng(pointLatLng.latitude,
+                      pointLatLng.longitude));
+      });
+    }
+    polylineSet.clear();
+
+    setState(() {
+      Polyline polyline = Polyline(
+        polylineId: const PolylineId("polylineID"),
+        color: Colors.green,
+        points: listcoOrdinates,
+        width: 6,
+        jointType: JointType.round,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        geodesic: true,
+      );
+      polylineSet.add(polyline);
+    });
+
+
+    //fit the polyline into the map
+    LatLngBounds boundsLatLng;
+    if(pickupCoordinates.latitude > dropOffCoordinates.latitude
+        && pickupCoordinates.longitude > dropOffCoordinates.longitude)
+    {
+      boundsLatLng = LatLngBounds(
+        southwest: dropOffCoordinates,
+        northeast: pickupCoordinates,
+      );
+    }
+    else if(pickupCoordinates.longitude > dropOffCoordinates.longitude)
+    {
+      boundsLatLng = LatLngBounds(
+        southwest: LatLng(pickupCoordinates.latitude, dropOffCoordinates.longitude),
+        northeast: LatLng(dropOffCoordinates.latitude, pickupCoordinates.longitude),
+      );
+    }
+    else if(pickupCoordinates.latitude > dropOffCoordinates.latitude)
+    {
+      boundsLatLng = LatLngBounds(
+        southwest: LatLng(dropOffCoordinates.latitude, pickupCoordinates.longitude),
+        northeast: LatLng(pickupCoordinates.latitude, dropOffCoordinates.longitude),
+      );
+    }
+    else
+    {
+      boundsLatLng = LatLngBounds(
+        southwest: pickupCoordinates,
+        northeast: dropOffCoordinates,
+      );
+    }
+
+    controllerGoogleMap!.animateCamera(CameraUpdate.newLatLngBounds(boundsLatLng, 72));
+
+
+    Marker pickUpMarker = Marker(
+      markerId: const MarkerId("Pick up location"),
+      position: listcoOrdinates[0],
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    );
+    Marker dropOffMarker = Marker(
+      markerId: const MarkerId("Drop off location"),
+      position: listcoOrdinates[listcoOrdinates.length-1],
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+    );
+    setState(() {
+      setMarker.add(pickUpMarker);
+      setMarker.add(dropOffMarker);
+    });
 
   }
+
+
 
 
   @override
@@ -224,8 +298,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
-
     String address = Provider
         .of<AppInfor>(context, listen: false)
         .pickUpAddress
@@ -344,6 +416,8 @@ class HomePageState extends State<HomePage> {
           GoogleMap(
             mapType: MapType.normal,
             myLocationEnabled: true,
+            polylines: polylineSet,
+            markers: setMarker,
             myLocationButtonEnabled: false,
             initialCameraPosition: googleInitPos,
             zoomControlsEnabled: false,
