@@ -295,7 +295,6 @@ class HomePageState extends State<HomePage> {
 
   }
 
-
   resetApp(){
     setState(() {
       listcoOrdinates.clear();
@@ -488,7 +487,7 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           Positioned(
-            top: 40,
+            top: 20,
             left: 350,
             child: GestureDetector(
               onTap: ()
@@ -849,7 +848,42 @@ class HomePageState extends State<HomePage> {
                             color: Colors.black,
                           ),
                         ),
-                        Container(
+                        Positioned(
+                          top: 40,
+                          left: 350,
+                          child: GestureDetector(
+                            onTap: () async {
+                              resetApp();
+                              await Future.delayed(Duration(milliseconds: 200));
+                              _panelBookCarController.hide();
+                              _panelSearchLocationController.show();
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.red), // Màu viền đỏ
+                                color: Colors.transparent, // Màu trong suốt
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.white,
+                                    blurRadius: 5,
+                                    spreadRadius: 0.5,
+                                    offset: Offset(0.7, 0.7),
+                                  ),
+                                ],
+                              ),
+                              child: const CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                radius: 20,
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        /*Container(
                           width: 100,
                           child: FilledButton(
                             style: FilledButton.styleFrom(
@@ -879,11 +913,7 @@ class HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
-                        ),
-
-
-
-
+                        ),*/
                       ],
                     ),
                   ),
