@@ -61,15 +61,13 @@ class HomePageState extends State<HomePage> {
   final PanelController _panelBookCarController = PanelController();
   bool _isPanelDraggable = false;
 
-
   DirectionDetailModel? tripDirectionDetailModel;
-
-
 
   List<LatLng> listcoOrdinates = [];
   Set<Polyline> polylineSet ={};
   Set<Marker> setMarker = {};
   Set<Circle> setCircal ={};
+
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -294,9 +292,24 @@ class HomePageState extends State<HomePage> {
     setState(() {
       setCircal.add(circlePickUpLocation);
     });
+
   }
 
 
+  resetApp(){
+    setState(() {
+      listcoOrdinates.clear();
+      polylineSet.clear();
+      destinationTextEditingController.text = "";
+      locationListDisplay.clear();
+      setMarker.clear();
+      setCircal.clear();
+      LatLng latLngUser = LatLng(currentPosOfUser!.latitude, currentPosOfUser!.longitude);
+      CameraPosition cameraPosition = CameraPosition(target: latLngUser, zoom: 15);
+      controllerGoogleMap!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    });
+
+  }
 
 
   @override
@@ -463,7 +476,7 @@ class HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                child: const CircleAvatar(
+                child:  const CircleAvatar(
                   backgroundColor: Colors.white,
                   radius: 20,
                   child: Icon(
@@ -835,7 +848,7 @@ class HomePageState extends State<HomePage> {
                             fontSize: 22,
                             color: Colors.black,
                           ),
-                        ), // Text hiển thị "Select option"
+                        ),
                         Container(
                           width: 100,
                           child: FilledButton(
@@ -843,10 +856,12 @@ class HomePageState extends State<HomePage> {
                               minimumSize: const Size.fromHeight(45.0),
                               backgroundColor: Colors.redAccent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
+                                borderRadius: BorderRadius.circular(70.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
                               ),
                             ),
-                            onPressed: ()  {
+                            onPressed: () async {
+                              resetApp();
+                              await Future.delayed(Duration(milliseconds: 200));
                               _panelBookCarController.hide();
                               _panelSearchLocationController.show();
                             },
@@ -864,7 +879,11 @@ class HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
-                        )
+                        ),
+
+
+
+
                       ],
                     ),
                   ),
