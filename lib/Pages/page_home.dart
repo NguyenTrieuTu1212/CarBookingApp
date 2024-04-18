@@ -22,10 +22,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../AppInfor/app_info.dart';
 import '../Global/global_var.dart';
+import '../Global/trip_var.dart';
 import '../Widgets/text_widget.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
@@ -67,6 +69,8 @@ class HomePageState extends State<HomePage> {
   Set<Polyline> polylineSet ={};
   Set<Marker> setMarker = {};
   Set<Circle> setCircal ={};
+
+  final PanelController _panelRequestCar = PanelController();
 
 
   void updateMapTheme(GoogleMapController controller) {
@@ -306,6 +310,13 @@ class HomePageState extends State<HomePage> {
       LatLng latLngUser = LatLng(currentPosOfUser!.latitude, currentPosOfUser!.longitude);
       CameraPosition cameraPosition = CameraPosition(target: latLngUser, zoom: 15);
       controllerGoogleMap!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+      status = "";
+      nameDriver = "";
+      photoDriver = "";
+      phoneNumberDriver = "";
+      carDetailsDriver = "";
+      tripStatusDisplay = 'Driver is Arriving';
     });
 
   }
@@ -519,6 +530,7 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          // Sliding up Panel Search
           SlidingUpPanel(
             onPanelOpened: () {
               setState(() {
@@ -824,6 +836,7 @@ class HomePageState extends State<HomePage> {
             minHeight: 150,
             isDraggable: _isPanelDraggable,
           ),
+          // Sliding up Panel Display detail trip
           SlidingUpPanel(
             controller: _panelBookCarController,
             panel: const Center(),

@@ -48,6 +48,7 @@ dependencies:
   google_fonts:
   get:
   flutter_polyline_points:
+  loading_animation_widget:
 
 dev_dependencies:
   flutter_test:
