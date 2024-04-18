@@ -51,18 +51,16 @@ class _TestSlidingState extends State<TestSliding> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
 
-                    const SizedBox(height: 12,),
+                    const SizedBox(height: 10,),
 
                     SizedBox(
                       width: 200,
-                      child: LoadingAnimationWidget.flickr(
-                        leftDotColor: Colors.greenAccent,
-                        rightDotColor: Colors.pinkAccent,
-                        size: 50,
+                      child: LoadingAnimationWidget.staggeredDotsWave(
+                        size: 50, color: Colors.greenAccent,
                       ),
                     ),
 
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 15,),
 
                     GestureDetector(
                       onTap: ()

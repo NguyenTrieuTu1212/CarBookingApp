@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -498,7 +499,20 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           Positioned(
-            top: 20,
+            top: 650, // Điều chỉnh vị trí theo y
+            right: 15, // Điều chỉnh vị trí theo x
+            child: FloatingActionButton(
+              onPressed: () {
+                getCurrentPositionUser();
+              },
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black87,
+              elevation: 10,
+              child: Icon(Icons.my_location),
+            ),
+          ),
+          /*Positioned(
+            top: 50,
             left: 350,
             child: GestureDetector(
               onTap: ()
@@ -529,7 +543,7 @@ class HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          ),
+          ),*/
           // Sliding up Panel Search
           SlidingUpPanel(
             onPanelOpened: () {
@@ -1070,12 +1084,11 @@ class HomePageState extends State<HomePage> {
                   children: [
                     const Text(
                       "Waiting for driver... Please wait a moment..",
+
                       style: TextStyle(
-                        // Specify your text style properties here
-                        fontSize: 16, // for example
-                        fontWeight: FontWeight.bold, // for example
-                        color: Colors.greenAccent, // for example
-                        // Add more properties as needed
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent,
                       ),
                     ),
                     const SizedBox(height: 10,),
@@ -1089,6 +1102,42 @@ class HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 15,),
                     GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _panelBookCarController.show();
+                          requestContainerHeight = 0;
+                        });
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(width: 1.5, color: Colors.pink), // Màu viền hồng
+                            ),
+                          ),
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent, // Để nền trong suốt
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.close,
+                                color: Colors.pink, // Màu icon hồng
+                                size: 25,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    /*GestureDetector(
                       onTap: ()
                       {
                         setState(() {
@@ -1110,7 +1159,7 @@ class HomePageState extends State<HomePage> {
                           size: 25,
                         ),
                       ),
-                    ),
+                    ),*/
                     const SizedBox(height: 12,),
                   ],
                 ),
