@@ -16,6 +16,7 @@ class TestSliding extends StatefulWidget {
 class _TestSlidingState extends State<TestSliding> {
 
 
+  double requestContainerHeight = 175;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class _TestSlidingState extends State<TestSliding> {
             right: 0,
             bottom: 0,
             child: Container(
-              height: 300,
+              height: requestContainerHeight,
               decoration: const BoxDecoration(
                 color: Colors.black54,
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
@@ -66,7 +67,9 @@ class _TestSlidingState extends State<TestSliding> {
                     GestureDetector(
                       onTap: ()
                       {
-                        print("Click");
+                        setState(() {
+                          requestContainerHeight = 0;
+                        });
                       },
                       child: Container(
                         height: 50,

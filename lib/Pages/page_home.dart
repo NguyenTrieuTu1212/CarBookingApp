@@ -70,7 +70,7 @@ class HomePageState extends State<HomePage> {
   Set<Marker> setMarker = {};
   Set<Circle> setCircal ={};
 
-  final PanelController _panelRequestCar = PanelController();
+  double requestContainerHeight =0;
 
 
   void updateMapTheme(GoogleMapController controller) {
@@ -1013,7 +1013,11 @@ class HomePageState extends State<HomePage> {
 
                             ),
                             onPressed: () {
-
+                              setState(() {
+                                _panelSearchLocationController.hide();
+                                _panelBookCarController.hide();
+                                requestContainerHeight = 200;
+                              });
                             },
                             child: const Text(
                               "Confirm",
@@ -1036,6 +1040,82 @@ class HomePageState extends State<HomePage> {
             borderRadius: radius,
             minHeight: 250,
             isDraggable: false,
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: requestContainerHeight,
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                boxShadow:
+                [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 15.0,
+                    spreadRadius: 0.5,
+                    offset: Offset(
+                      0.7,
+                      0.7,
+                    ),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Waiting for driver... Please wait a moment..",
+                      style: TextStyle(
+                        // Specify your text style properties here
+                        fontSize: 16, // for example
+                        fontWeight: FontWeight.bold, // for example
+                        color: Colors.greenAccent, // for example
+                        // Add more properties as needed
+                      ),
+                    ),
+                    const SizedBox(height: 10,),
+                    SizedBox(
+                      width: 200,
+                      child: LoadingAnimationWidget.flickr(
+                        leftDotColor: Colors.greenAccent,
+                        rightDotColor: Colors.pinkAccent,
+                        size: 50,
+                      ),
+                    ),
+                    const SizedBox(height: 15,),
+                    GestureDetector(
+                      onTap: ()
+                      {
+                        setState(() {
+                          _panelBookCarController.show();
+                          requestContainerHeight = 0;
+                        });
+                      },
+                      child: Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white70,
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(width: 1.5, color: Colors.grey),
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.black,
+                          size: 25,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12,),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

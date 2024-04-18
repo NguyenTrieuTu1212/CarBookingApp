@@ -479,7 +479,7 @@ class _HomePageState extends State<HomePage>
             ),
           ),
 
-          ///search location icon button
+          ///search location icAon button
           Positioned(
             left: 0,
             right: 0,
