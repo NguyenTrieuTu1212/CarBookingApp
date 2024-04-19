@@ -76,6 +76,8 @@ class HomePageState extends State<HomePage> {
   bool showClearIcon = false;
 
 
+  bool iconGetCurrentActive = true;
+
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
   }
@@ -235,39 +237,39 @@ class HomePageState extends State<HomePage> {
     });
 
 
-    //fit the polyline into the map
-    LatLngBounds boundsLatLng;
-    if(pickupCoordinates.latitude > dropOffCoordinates.latitude
-        && pickupCoordinates.longitude > dropOffCoordinates.longitude)
-    {
-      boundsLatLng = LatLngBounds(
-        southwest: dropOffCoordinates,
-        northeast: pickupCoordinates,
-      );
-    }
-    else if(pickupCoordinates.longitude > dropOffCoordinates.longitude)
-    {
-      boundsLatLng = LatLngBounds(
-        southwest: LatLng(pickupCoordinates.latitude, dropOffCoordinates.longitude),
-        northeast: LatLng(dropOffCoordinates.latitude, pickupCoordinates.longitude),
-      );
-    }
-    else if(pickupCoordinates.latitude > dropOffCoordinates.latitude)
-    {
-      boundsLatLng = LatLngBounds(
-        southwest: LatLng(dropOffCoordinates.latitude, pickupCoordinates.longitude),
-        northeast: LatLng(pickupCoordinates.latitude, dropOffCoordinates.longitude),
-      );
-    }
-    else
-    {
-      boundsLatLng = LatLngBounds(
-        southwest: pickupCoordinates,
-        northeast: dropOffCoordinates,
-      );
-    }
 
-    controllerGoogleMap!.animateCamera(CameraUpdate.newLatLngBounds(boundsLatLng, 72));
+    // Calculating to check that the position relative
+// to the frame, and pan & zoom the camera accordingly.
+    double miny = (pickupCoordinates.latitude <= dropOffCoordinates.latitude)
+        ? pickupCoordinates.latitude
+        : dropOffCoordinates.latitude;
+    double minx = (pickupCoordinates.longitude <= dropOffCoordinates.longitude)
+        ? pickupCoordinates.longitude
+        : dropOffCoordinates.longitude;
+    double maxy = (pickupCoordinates.latitude <= dropOffCoordinates.latitude)
+        ? dropOffCoordinates.latitude
+        : pickupCoordinates.latitude;
+    double maxx = (pickupCoordinates.longitude <= dropOffCoordinates.longitude)
+        ? dropOffCoordinates.longitude
+        : pickupCoordinates.longitude;
+
+    double southWestLatitude = miny;
+    double southWestLongitude = minx;
+
+    double northEastLatitude = maxy;
+    double northEastLongitude = maxx;
+
+
+    controllerGoogleMap!.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          northeast: LatLng(northEastLatitude, northEastLongitude),
+          southwest: LatLng(southWestLatitude, southWestLongitude),
+        ),
+        100.0,
+      ),
+    );
+
 
 
     Marker pickUpMarker = Marker(
@@ -499,10 +501,9 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
           // Button floating get current user
-
-          Positioned(
+          if(iconGetCurrentActive)
+            Positioned(
             top: 660, // Điều chỉnh vị trí theo y
             right: 15, // Điều chỉnh vị trí theo x
             child: FloatingActionButton(
@@ -927,6 +928,10 @@ class HomePageState extends State<HomePage> {
                               await Future.delayed(Duration(milliseconds: 200));
                               _panelBookCarController.hide();
                               _panelSearchLocationController.show();
+                              setState(() {
+                                iconGetCurrentActive = true;
+                                showClearIcon = false;
+                              });
                             },
                             child: Container(
                               decoration: BoxDecoration(
@@ -953,37 +958,6 @@ class HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        /*Container(
-                          width: 100,
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size.fromHeight(45.0),
-                              backgroundColor: Colors.redAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(70.0), // Điều chỉnh giá trị của borderRadius để thay đổi độ bo góc
-                              ),
-                            ),
-                            onPressed: () async {
-                              resetApp();
-                              await Future.delayed(Duration(milliseconds: 200));
-                              _panelBookCarController.hide();
-                              _panelSearchLocationController.show();
-                            },
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Cancel",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),*/
                       ],
                     ),
                   ),
@@ -1074,6 +1048,7 @@ class HomePageState extends State<HomePage> {
                                 _panelSearchLocationController.hide();
                                 _panelBookCarController.hide();
                                 requestContainerHeight = 200;
+                                iconGetCurrentActive = false;
                               });
                             },
                             child: const Text(
@@ -1147,8 +1122,8 @@ class HomePageState extends State<HomePage> {
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          _panelBookCarController.show();
                           requestContainerHeight = 0;
+                          _panelBookCarController.show();
                         });
                       },
                       child: Stack(
