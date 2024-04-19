@@ -73,6 +73,8 @@ class HomePageState extends State<HomePage> {
 
   double requestContainerHeight =0;
 
+  bool showClearIcon = false;
+
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -194,15 +196,14 @@ class HomePageState extends State<HomePage> {
       builder: (BuildContext context)=> LoadingDialog(messageText: "Getting Direction......."),
     );
 
-    _panelSearchLocationController.close();
-    Navigator.pop(context);
-
 
     var detailDirectionModel = await CommonMethods.getDirectionDetail(pickupCoordinates, dropOffCoordinates);
     setState(() {
       tripDirectionDetailModel = detailDirectionModel;
     });
 
+    _panelSearchLocationController.close();
+    Navigator.pop(context);
 
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> listLatLngPolylinePoints = polylinePoints.decodePolyline(tripDirectionDetailModel!.encodedPoint!);
@@ -498,52 +499,24 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
+
+          // Button floating get current user
+
           Positioned(
-            top: 650, // Điều chỉnh vị trí theo y
+            top: 660, // Điều chỉnh vị trí theo y
             right: 15, // Điều chỉnh vị trí theo x
             child: FloatingActionButton(
               onPressed: () {
                 getCurrentPositionUser();
               },
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black87,
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
               elevation: 10,
+              mini: true,
+              shape: CircleBorder(),
               child: Icon(Icons.my_location),
             ),
           ),
-          /*Positioned(
-            top: 50,
-            left: 350,
-            child: GestureDetector(
-              onTap: ()
-              {
-                getCurrentPositionUser();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: const
-                  [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 5,
-                      spreadRadius: 0.5,
-                      offset: Offset(0.7, 0.7),
-                    ),
-                  ],
-                ),
-                child: const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 20,
-                  child: Icon(
-                    Icons.my_location,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-            ),
-          ),*/
           // Sliding up Panel Search
           SlidingUpPanel(
             onPanelOpened: () {
@@ -665,25 +638,95 @@ class HomePageState extends State<HomePage> {
                                         borderRadius: BorderRadius.circular(8.0),
                                         border: Border.all(color: Colors.green, width: 1.0),
                                       ),
-                                      padding: const EdgeInsets.symmetric(horizontal: 8.0, ),
-                                      child: TextFormField(
-                                        onChanged: (inputText){
-                                          searchLocation(inputText);
-                                        },
-                                        controller: destinationTextEditingController,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        decoration: const InputDecoration(
-                                          isDense: true,
-                                          prefixIcon: Icon(Icons.location_pin,color: Colors.redAccent,),
-                                          hintText: "Where go ?",
-                                          hintStyle: TextStyle(color: Colors.grey),
-                                          border: InputBorder.none,
-                                        ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextFormField(
+                                              onChanged: (inputText) {
+                                                setState(() {
+                                                  searchLocation(inputText);
+                                                  showClearIcon = inputText.isNotEmpty;
+                                                });
+                                              },
+                                              controller: destinationTextEditingController,
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              decoration: const InputDecoration(
+                                                isDense: true,
+                                                prefixIcon: Icon(Icons.location_pin, color: Colors.redAccent),
+                                                hintText: "Where go?",
+                                                hintStyle: TextStyle(color: Colors.grey),
+                                                border: InputBorder.none,
+                                              ),
+                                            ),
+                                          ),
+
+                                          if(showClearIcon)
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  destinationTextEditingController.text = '';
+                                                  showClearIcon = false;
+                                                });
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(bottom: 5.0,left: 15.0,),
+                                                child: Icon(Icons.close, color: Colors.grey,size: 25,),
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                     ),
+                                    /*Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        border: Border.all(color: Colors.green, width: 1.0),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      child: Stack(
+                                        alignment: Alignment.centerRight,
+                                        children: [
+                                          TextFormField(
+                                            onChanged: (inputText) {
+                                              setState(() {
+                                                searchLocation(inputText);
+                                                showClearIcon = inputText.isNotEmpty;
+                                              });
+                                            },
+                                            controller: destinationTextEditingController,
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            decoration: const InputDecoration(
+                                              isDense: true,
+                                              prefixIcon: Icon(Icons.location_pin, color: Colors.redAccent),
+                                              hintText: "Where go?",
+                                              hintStyle: TextStyle(color: Colors.grey),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                          // Sử dụng điều kiện để hiển thị hoặc ẩn biểu tượng "x"
+                                          if (showClearIcon)
+                                            GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  destinationTextEditingController.text = '';
+                                                  showClearIcon = false; // Ẩn biểu tượng khi xóa văn bản
+                                                });
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Icon(Icons.close, color: Colors.green),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),*/
                                   ],
                                 ),
                               ),
@@ -831,7 +874,7 @@ class HomePageState extends State<HomePage> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
-                                      color: Colors.black87,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ],
