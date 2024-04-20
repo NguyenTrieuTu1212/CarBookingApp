@@ -18,6 +18,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -325,6 +326,10 @@ class HomePageState extends State<HomePage> {
 
   }
 
+  initailizeGeoFireListener(){
+    Geofire.initialize("onlineDrivers");
+    Geofire.queryAtLocation(currentPosOfUser!.latitude, currentPosOfUser!.longitude, 40);
+  }
 
   @override
   void initState() {

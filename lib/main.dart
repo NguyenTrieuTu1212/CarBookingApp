@@ -5,6 +5,7 @@ import 'package:app_car_booking/Auth/signup_screen.dart';
 import 'package:app_car_booking/Map/map_display.dart';
 import 'package:app_car_booking/Pages/page_home.dart';
 import 'package:app_car_booking/Test/TestSlidingUp.dart';
+import 'package:app_car_booking/Test/createDriver.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget{
     return  ChangeNotifierProvider(
       create: (context) => AppInfor() ,
       child: MaterialApp(
-        home:  FirebaseAuth.instance.currentUser == null ? HomePage() : HomePage(),
+        home:  AddDriver()/* FirebaseAuth.instance.currentUser == null ? HomePage() : HomePage()*/,
         title: "Fluter App",
         theme: ThemeData.dark().copyWith(
           scaffoldBackgroundColor: Colors.black
