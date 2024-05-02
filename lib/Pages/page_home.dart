@@ -5,8 +5,10 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:app_car_booking/Auth/login_screen.dart';
 import 'package:app_car_booking/Methods/common_methods.dart';
+import 'package:app_car_booking/Methods/manager_driver_methods.dart';
 import 'package:app_car_booking/Models/AddressModel.dart';
 import 'package:app_car_booking/Models/direction_detail_model.dart';
+import 'package:app_car_booking/Models/online_nearby_driver.dart';
 import 'package:app_car_booking/Widgets/loading_dialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -76,8 +78,22 @@ class HomePageState extends State<HomePage> {
 
   bool showClearIcon = false;
 
-
   bool iconGetCurrentActive = true;
+
+  bool driverNearbyLoaded = false;
+
+  BitmapDescriptor? iconDriverNearby;
+
+
+  makeIconCarDriverNearby(){
+    if(iconDriverNearby == null){
+      ImageConfiguration imageConfiguration = createLocalImageConfiguration(context,size: Size(0.5,0.5));
+      BitmapDescriptor.fromAssetImage(imageConfiguration, "assets/images/tracking.png").then((iconImage) => {
+        iconDriverNearby = iconImage
+      });
+    }
+  }
+
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -101,6 +117,7 @@ class HomePageState extends State<HomePage> {
     controllerGoogleMap!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     await CommonMethods.convertGeoGraphicsIntoAddress(currentPosOfUser!, context);
     await getStatusOfUser();
+    initailizeGeoFireListener();
   }
 
   getStatusOfUser() async{
@@ -152,7 +169,6 @@ class HomePageState extends State<HomePage> {
   }
 
   fetchClickedPlaceDetail(PanelController _pc,String placeID) async{
-
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -326,9 +342,71 @@ class HomePageState extends State<HomePage> {
 
   }
 
+  updateAvailableNearbyDriverOnline(){
+    setState(() {
+      setMarker.clear();
+    });
+
+    Set<Marker> markerTemp = Set<Marker>();
+
+    for(OnlineNearbyDrivers driverOnline in ManagerDriverMethods.listDriverNearby){
+      LatLng postionDriver =LatLng(driverOnline.latDriver!, driverOnline.lngDriver!);
+      Marker markerDriverNearby = Marker(
+          markerId: MarkerId("Driver Online Nearby"),
+          position: postionDriver,
+          icon: iconDriverNearby!,
+      );
+      markerTemp.add(markerDriverNearby);
+    }
+
+
+    setState(() {
+      setMarker = markerTemp;
+    });
+
+  }
+
   initailizeGeoFireListener(){
     Geofire.initialize("onlineDrivers");
-    Geofire.queryAtLocation(currentPosOfUser!.latitude, currentPosOfUser!.longitude, 40);
+    Geofire.queryAtLocation(currentPosOfUser!.latitude, currentPosOfUser!.longitude, 22)!.listen((driverEvent) {
+      var onlineDeiverChild = driverEvent["callBack"];
+      switch(onlineDeiverChild){
+
+
+        case Geofire.onGeoQueryReady:
+          driverNearbyLoaded = true;
+          updateAvailableNearbyDriverOnline();
+          break;
+
+        case Geofire.onKeyEntered:
+          OnlineNearbyDrivers onlineNearbyDrivers = OnlineNearbyDrivers();
+          onlineNearbyDrivers.uidDriver=driverEvent["key"];
+          onlineNearbyDrivers.latDriver = driverEvent["latitude"];
+          onlineNearbyDrivers.lngDriver=driverEvent["longitude"];
+          ManagerDriverMethods.listDriverNearby.add(onlineNearbyDrivers);
+          if(driverNearbyLoaded){
+            updateAvailableNearbyDriverOnline();
+          }
+          break;
+
+        case Geofire.onKeyMoved:
+          OnlineNearbyDrivers onlineNearbyDrivers = OnlineNearbyDrivers();
+          onlineNearbyDrivers.uidDriver=driverEvent["key"];
+          onlineNearbyDrivers.latDriver = driverEvent["latitude"];
+          onlineNearbyDrivers.lngDriver=driverEvent["longitude"];
+          ManagerDriverMethods.updateNearbyDriverLocation(onlineNearbyDrivers);
+          updateAvailableNearbyDriverOnline();
+          break;
+
+
+        case Geofire.onKeyExited:
+          ManagerDriverMethods.removeDriverFromList(driverEvent["key"]);
+          updateAvailableNearbyDriverOnline();
+          break;
+
+
+      }
+    });
   }
 
   @override
@@ -352,6 +430,8 @@ class HomePageState extends State<HomePage> {
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
     );
+
+    makeIconCarDriverNearby();
     return Scaffold(
       key: sKey,
       drawer: Container(
