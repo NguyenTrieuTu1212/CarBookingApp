@@ -9,6 +9,7 @@ import 'package:app_car_booking/Methods/manager_driver_methods.dart';
 import 'package:app_car_booking/Models/AddressModel.dart';
 import 'package:app_car_booking/Models/direction_detail_model.dart';
 import 'package:app_car_booking/Models/online_nearby_driver.dart';
+import 'package:app_car_booking/Widgets/info_dialog.dart';
 import 'package:app_car_booking/Widgets/loading_dialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -74,11 +75,13 @@ class HomePageState extends State<HomePage> {
   Set<Marker> setMarker = {};
   Set<Circle> setCircal ={};
   double requestContainerHeight =0;
+  String stateOfApp = "normal";
   bool showClearIcon = false;
   bool iconGetCurrentActive = true;
   bool driverNearbyLoaded = false;
   BitmapDescriptor? iconDriverNearby;
   DatabaseReference? tripRequestRef;
+  List<OnlineNearbyDrivers>?availableOnlineNearbyDriver;
 
   makeIconCarDriverNearby(){
     if(iconDriverNearby == null){
@@ -111,7 +114,7 @@ class HomePageState extends State<HomePage> {
     controllerGoogleMap!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     await CommonMethods.convertGeoGraphicsIntoAddress(currentPosOfUser!, context);
     await getStatusOfUser();
-    initailizeGeoFireListener();
+    await initailizeGeoFireListener();
   }
 
   getStatusOfUser() async{
@@ -327,7 +330,8 @@ class HomePageState extends State<HomePage> {
       LatLng latLngUser = LatLng(currentPosOfUser!.latitude, currentPosOfUser!.longitude);
       CameraPosition cameraPosition = CameraPosition(target: latLngUser, zoom: 15);
       controllerGoogleMap!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-
+      _panelBookCarController.show();
+      requestContainerHeight = 0;
       status = "";
       nameDriver = "";
       photoDriver = "";
@@ -354,8 +358,6 @@ class HomePageState extends State<HomePage> {
       );
       markerTemp.add(markerDriverNearby);
     }
-
-
     setState(() {
       setMarker = markerTemp;
     });
@@ -364,11 +366,9 @@ class HomePageState extends State<HomePage> {
 
   initailizeGeoFireListener(){
     Geofire.initialize("onlineDrivers");
-    Geofire.queryAtLocation(currentPosOfUser!.latitude, currentPosOfUser!.longitude, 22)!.listen((driverEvent) {
-      var onlineDeiverChild = driverEvent["callBack"];
-      switch(onlineDeiverChild){
-
-
+    Geofire.queryAtLocation(currentPosOfUser!.latitude, currentPosOfUser!.longitude, 70)!.listen((driverEvent) {
+      var onlineDriverChild = driverEvent["callBack"];
+      switch(onlineDriverChild){
         case Geofire.onGeoQueryReady:
           driverNearbyLoaded = true;
           updateAvailableNearbyDriverOnline();
@@ -380,7 +380,7 @@ class HomePageState extends State<HomePage> {
           onlineNearbyDrivers.latDriver = driverEvent["latitude"];
           onlineNearbyDrivers.lngDriver=driverEvent["longitude"];
           ManagerDriverMethods.listDriverNearby.add(onlineNearbyDrivers);
-          if(driverNearbyLoaded){
+          if(driverNearbyLoaded == true){
             updateAvailableNearbyDriverOnline();
           }
           break;
@@ -402,6 +402,15 @@ class HomePageState extends State<HomePage> {
 
 
       }
+    });
+  }
+
+  cancelRideRequest() {
+    //remove ride request from database
+    tripRequestRef!.remove();
+
+    setState(() {
+      stateOfApp = "normal";
     });
   }
 
@@ -451,6 +460,30 @@ class HomePageState extends State<HomePage> {
     };
     tripRequestRef!.set(dataMap);
   }
+
+  noDriverAvailable(){
+    showDialog(
+
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => InfoDialog(
+          title: "No Driver Available",
+          description: "No driver found nearby location !!  \n Please try again shortly.",
+        ),
+    );
+  }
+
+  searchDriver(){
+    if(availableOnlineNearbyDriver!.length ==0){
+      cancelRideRequest();
+      resetApp();
+      noDriverAvailable();
+      return;
+    }
+    var currentDriver = availableOnlineNearbyDriver![0];
+    availableOnlineNearbyDriver!.removeAt(0);
+  }
+
 
   @override
   void initState() {
@@ -809,53 +842,6 @@ class HomePageState extends State<HomePage> {
                                         ],
                                       ),
                                     ),
-                                    /*Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8.0),
-                                        border: Border.all(color: Colors.green, width: 1.0),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                      child: Stack(
-                                        alignment: Alignment.centerRight,
-                                        children: [
-                                          TextFormField(
-                                            onChanged: (inputText) {
-                                              setState(() {
-                                                searchLocation(inputText);
-                                                showClearIcon = inputText.isNotEmpty;
-                                              });
-                                            },
-                                            controller: destinationTextEditingController,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            decoration: const InputDecoration(
-                                              isDense: true,
-                                              prefixIcon: Icon(Icons.location_pin, color: Colors.redAccent),
-                                              hintText: "Where go?",
-                                              hintStyle: TextStyle(color: Colors.grey),
-                                              border: InputBorder.none,
-                                            ),
-                                          ),
-                                          // Sử dụng điều kiện để hiển thị hoặc ẩn biểu tượng "x"
-                                          if (showClearIcon)
-                                            GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  destinationTextEditingController.text = '';
-                                                  showClearIcon = false; // Ẩn biểu tượng khi xóa văn bản
-                                                });
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(8.0),
-                                                child: Icon(Icons.close, color: Colors.green),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),*/
                                   ],
                                 ),
                               ),
@@ -1177,8 +1163,11 @@ class HomePageState extends State<HomePage> {
                                 _panelBookCarController.hide();
                                 requestContainerHeight = 200;
                                 iconGetCurrentActive = false;
-                                makeTripRequest();
+                                stateOfApp = "requesting";
                               });
+                              makeTripRequest();
+                              availableOnlineNearbyDriver = ManagerDriverMethods.listDriverNearby;
+                              searchDriver();
                             },
                             child: const Text(
                               "Confirm",
@@ -1342,10 +1331,6 @@ class HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /*textWidget(
-                    text: 'Standard',
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700),*/
                 textWidget(
                     text: (tripDirectionDetailModel!=null) ? "${CommonMethods.convertFromKilometersToMoney(tripDirectionDetailModel!.digitDistance!).toString()} VND" : "O vnd",
                     color: Colors.white,
