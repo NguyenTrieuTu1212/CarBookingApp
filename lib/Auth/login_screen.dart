@@ -70,9 +70,9 @@ class _LoginPageState extends State<LoginPage> {
         DatabaseReference userRefDatabase = FirebaseDatabase.instance.ref().child("users").child(userFirebase.uid);
         userRefDatabase.once().then((snap) {
           if (snap.snapshot.value != null) {
-
-            userName = (snap.snapshot.value as Map)["name"];
             if ((snap.snapshot.value as Map)["blockedStatus"] == "no") {
+              userName = (snap.snapshot.value as Map)["name"];
+              userPhone = (snap.snapshot.value as Map)["phone"];
               commonMethods.DisplayBox(context, "Successfully", "Congratulations!!! Logged in successfully", ContentType.success);
               Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
             } else {

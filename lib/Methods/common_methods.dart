@@ -118,6 +118,7 @@ class CommonMethods{
       address = responseFromApi["results"][0]["formatted_address"];
       AddressModel model =  AddressModel();
       model.addressHumman = address;
+      model.placeName = address;
       model.latPosition = position.latitude;
       model.longPosition = position.longitude;
       Provider.of<AppInfor>(context, listen: false).updatePickUpAddress(model);

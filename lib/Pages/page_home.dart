@@ -73,17 +73,12 @@ class HomePageState extends State<HomePage> {
   Set<Polyline> polylineSet ={};
   Set<Marker> setMarker = {};
   Set<Circle> setCircal ={};
-
   double requestContainerHeight =0;
-
   bool showClearIcon = false;
-
   bool iconGetCurrentActive = true;
-
   bool driverNearbyLoaded = false;
-
   BitmapDescriptor? iconDriverNearby;
-
+  DatabaseReference? tripRequestRef;
 
   makeIconCarDriverNearby(){
     if(iconDriverNearby == null){
@@ -93,7 +88,6 @@ class HomePageState extends State<HomePage> {
       });
     }
   }
-
 
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes("themes/map_theme_night.json").then((value)=> setGoogleMapStyle(value, controller));
@@ -129,6 +123,8 @@ class HomePageState extends State<HomePage> {
         if((snap.snapshot.value as Map)["blockedStatus"] == "no"){
           setState(() {
             userName = (snap.snapshot.value as Map)["name"];
+            userPhone = (snap.snapshot.value as Map)["phone"];
+
           });
         }
         else{
@@ -407,6 +403,53 @@ class HomePageState extends State<HomePage> {
 
       }
     });
+  }
+
+  makeTripRequest(){
+    tripRequestRef = FirebaseDatabase.instance.ref().child("tripRequests").push();
+    var pickUpLocation = Provider.of<AppInfor>(context, listen: false).pickUpAddress;
+    var dropOffDestinationLocation = Provider.of<AppInfor>(context, listen: false).dropOffAddress;
+    Map pickUpCoOrdinatesMap =
+    {
+      "latitude": pickUpLocation!.latPosition.toString(),
+      "longitude": pickUpLocation.latPosition.toString(),
+    };
+
+    Map dropOffDestinationCoOrdinatesMap =
+    {
+      "latitude": dropOffDestinationLocation!.latPosition.toString(),
+      "longitude": dropOffDestinationLocation.longPosition.toString(),
+    };
+
+    Map driverCoOrdinates =
+    {
+      "latitude": "",
+      "longitude": "",
+    };
+
+    Map dataMap =
+    {
+      "tripID": tripRequestRef!.key,
+      "publishDateTime": DateTime.now().toString(),
+
+      "userName": userName,
+      "userPhone": userPhone,
+      "userID": userID,
+      "pickUpLatLng": pickUpCoOrdinatesMap,
+      "dropOffLatLng": dropOffDestinationCoOrdinatesMap,
+      "pickUpAddress": pickUpLocation.placeName,
+      "dropOffAddress": dropOffDestinationLocation.placeName,
+
+      "driverID": "waiting",
+      "carDetails": "",
+      "driverLocation": driverCoOrdinates,
+      "driverName": "",
+      "driverPhone": "",
+      "driverPhoto": "",
+      "fareAmount": "",
+      "status": "new",
+    };
+    tripRequestRef!.set(dataMap);
   }
 
   @override
@@ -1134,6 +1177,7 @@ class HomePageState extends State<HomePage> {
                                 _panelBookCarController.hide();
                                 requestContainerHeight = 200;
                                 iconGetCurrentActive = false;
+                                makeTripRequest();
                               });
                             },
                             child: const Text(

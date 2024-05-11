@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 String userName ="";
+String userPhone="";
+String userID = FirebaseAuth.instance.currentUser!.uid;
+
 String googleMapKey ="AIzaSyBbMNaYG54dqrE4TH03TETRp7MyXOCuuu8";
 String googeMapAPITest ="AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg";
 //AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg
