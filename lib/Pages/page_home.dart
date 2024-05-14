@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:app_car_booking/Auth/login_screen.dart';
 import 'package:app_car_booking/Methods/common_methods.dart';
 import 'package:app_car_booking/Methods/manager_driver_methods.dart';
+import 'package:app_car_booking/Methods/push_notification_service.dart';
 import 'package:app_car_booking/Models/AddressModel.dart';
 import 'package:app_car_booking/Models/direction_detail_model.dart';
 import 'package:app_car_booking/Models/online_nearby_driver.dart';
@@ -463,7 +464,6 @@ class HomePageState extends State<HomePage> {
 
   noDriverAvailable(){
     showDialog(
-
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) => InfoDialog(
@@ -492,12 +492,19 @@ class HomePageState extends State<HomePage> {
         .child(currentDriver.uidDriver.toString())
         .child("newStripStatus");
 
+    currentDriverRef.set(tripRequestRef!.key);
+    DatabaseReference tokenCurrentDriverRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(currentDriver.uidDriver.toString())
+        .child("deviceToken");
+    tokenCurrentDriverRef.once().then((dataSnapshot) {
+      if(dataSnapshot.snapshot.value != null){
+        String deviceToken = dataSnapshot.snapshot.value.toString();
+        PushNotificationService.sendNotificationToSelectedDriver(deviceToken, context,tripRequestRef!.key.toString());
+      }else return;
+    });
   }
-
-
-
-
-
 
   @override
   void initState() {
