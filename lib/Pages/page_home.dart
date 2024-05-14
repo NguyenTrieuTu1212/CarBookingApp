@@ -481,8 +481,22 @@ class HomePageState extends State<HomePage> {
       return;
     }
     var currentDriver = availableOnlineNearbyDriver![0];
+    sendNotificationToDriver(currentDriver);
     availableOnlineNearbyDriver!.removeAt(0);
   }
+
+  sendNotificationToDriver(OnlineNearbyDrivers currentDriver){
+    DatabaseReference currentDriverRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(currentDriver.uidDriver.toString())
+        .child("newStripStatus");
+
+  }
+
+
+
+
 
 
   @override
