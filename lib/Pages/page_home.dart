@@ -1185,10 +1185,11 @@ class HomePageState extends State<HomePage> {
                                 requestContainerHeight = 200;
                                 iconGetCurrentActive = false;
                                 stateOfApp = "requesting";
+                                makeTripRequest();
+                                availableOnlineNearbyDriver = ManagerDriverMethods.listDriverNearby;
+                                searchDriver();
                               });
-                              makeTripRequest();
-                              availableOnlineNearbyDriver = ManagerDriverMethods.listDriverNearby;
-                              searchDriver();
+
                             },
                             child: const Text(
                               "Confirm",
