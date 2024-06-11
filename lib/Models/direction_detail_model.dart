@@ -1,10 +1,28 @@
 
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
 class DirectionDetailModel{
-  String? distanceText;
-  String? timeDurationText;
+  /*int? distanceText;
+  int? timeDurationText;
+  int? digitDistance;
+  int? digitTimeDuration;
+  String? encodedPoint;*/
+
+
+  // ======================= API Geofy ====================
+  /*int? distanceText;
+  double? timeDurationText;
+  int? digitDistance;
+  double? digitTimeDuration;
+  String? encodedPoint;
+  List<PointLatLng>? listLatLngPolylinePoints;*/
+
+
   int? digitDistance;
   int? digitTimeDuration;
   String? encodedPoint;
+  List<PointLatLng>? listLatLngPolylinePoints;
 
-  DirectionDetailModel({this.distanceText,this.timeDurationText,this.digitDistance,this.digitTimeDuration,this.encodedPoint,});
+
+  DirectionDetailModel({this.digitDistance,this.digitTimeDuration,this.encodedPoint,this.listLatLngPolylinePoints,});
 }

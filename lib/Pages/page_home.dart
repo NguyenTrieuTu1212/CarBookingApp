@@ -36,7 +36,7 @@ import '../Global/global_var.dart';
 import '../Global/trip_var.dart';
 import '../Widgets/text_widget.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-
+import 'package:http/http.dart' as http;
 
 
 class HomePage extends StatefulWidget {
@@ -113,7 +113,7 @@ class HomePageState extends State<HomePage> {
     LatLng latLngUser = LatLng(currentPosOfUser!.latitude, currentPosOfUser!.longitude);
     CameraPosition cameraPosition = CameraPosition(target: latLngUser, zoom: 15);
     controllerGoogleMap!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-    await CommonMethods.convertGeoGraphicsIntoAddress(currentPosOfUser!, context);
+    await CommonMethods.convertGeoGraphicsIntoAddressUseAPIVietMap(currentPosOfUser!, context);
     await getStatusOfUser();
     await initailizeGeoFireListener();
   }
@@ -140,7 +140,166 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+
+
+  // ============================================ Geofy ===================================
+  /*searchLocation(String locationName) async {
+
+    if (locationName == null || locationName.isEmpty || locationName.length <= 1) {
+      return;
+    }
+
+    // Replace with your actual API key
+    final String urlApi = "https://api.geoapify.com/v1/geocode/autocomplete?text=$locationName&apiKey=$geoapifyApiKey&filter=countrycode:vn";
+
+    try {
+      final response = await http.get(Uri.parse(urlApi));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseFromPlaceApi = json.decode(response.body);
+
+        if (responseFromPlaceApi["features"] != null) {
+          final List<dynamic> features = responseFromPlaceApi["features"];
+          final List<Map<String, dynamic>> locations = features.map((feature) {
+            final properties = feature["properties"];
+            return {
+              "description": properties["formatted"],
+              "place_id": properties["place_id"],
+              "structured_formatting": {
+                "main_text": properties["name"],
+                "secondary_text": properties["address_line2"]
+              }
+            };
+          }).toList();
+
+          setState(() {
+            locationListDisplay = locations;
+          });
+          print(locationListDisplay);
+        } else {
+          print("API response does not contain 'features'");
+        }
+      } else {
+        print("Failed to load data from API, status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error occurred while calling API: $e");
+    }
+  }*/
+
+  /*fetchClickedPlaceDetail(PanelController _pc, String placeID) async {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => LoadingDialog(messageText: "Getting Detail......"),
+    );
+
+    String urlApiPlaceDetail = "https://api.geoapify.com/v2/place-details?id=$placeID&apiKey=$geoapifyApiKey";
+    var responseFromPlaceDetailApi = await CommonMethods.sendRequestAPI(urlApiPlaceDetail);
+
+    if (responseFromPlaceDetailApi == "Error") {
+      commonMethods.DisplayBox(context, "Ooops....", "Something went wrong!! Try again in a few minutes!", ContentType.failure);
+      Navigator.pop(context);
+      return;
+    }
+
+    _pc.close();
+    Navigator.pop(context);
+
+    if (responseFromPlaceDetailApi["features"] != null && responseFromPlaceDetailApi["features"].isNotEmpty) {
+      var result = responseFromPlaceDetailApi["features"][0]["properties"];
+
+      AddressModel dropOffAddress = AddressModel();
+      dropOffAddress.placeName = result["name"];
+      dropOffAddress.latPosition = result["lat"];
+      dropOffAddress.longPosition = result["lon"];
+      dropOffAddress.placeID = placeID;
+
+      Provider.of<AppInfor>(context, listen: false).updateDropOffAddress(dropOffAddress);
+      print("Place Detail is: " + dropOffAddress.latPosition.toString());
+    }
+
+    displayDirectionDetailTrip();
+  }*/
+
   searchLocation(String locationName) async {
+    if (locationName == null || locationName.isEmpty || locationName.length <= 1) {
+      return;
+    }
+
+    final String urlApi = "https://maps.vietmap.vn/api/autocomplete/v3?text=$locationName&apikey=$vietmapApiKey";
+
+    try {
+      final response = await http.get(Uri.parse(urlApi));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseFromPlaceApi = json.decode(response.body);
+        final List<Map<String, dynamic>> locations = responseFromPlaceApi.map((place) {
+          return {
+            "description": place["display"],
+            "place_id": place["ref_id"],
+            "structured_formatting": {
+              "main_text": place["name"],
+              "secondary_text": place["address"]
+            }
+          };
+        }).toList();
+
+        setState(() {
+          locationListDisplay = locations;
+        });
+        print(locationListDisplay);
+      } else {
+        print("Failed to load data from API, status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error occurred while calling API: $e");
+    }
+  }
+
+  fetchClickedPlaceDetail(PanelController _pc, String placeID) async {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => LoadingDialog(messageText: "Getting Detail......"),
+    );
+
+    // Thay thế URL API của Geoapify bằng URL API của VietMap
+    String urlApiPlaceDetail = "https://maps.vietmap.vn/api/place/v3?apikey=$vietmapApiKey&refid=$placeID";
+    var responseFromPlaceDetailApi = await CommonMethods.sendRequestAPI(urlApiPlaceDetail);
+
+    if (responseFromPlaceDetailApi == "Error") {
+      commonMethods.DisplayBox(context, "Ooops....", "Something went wrong!! Try again in a few minutes!", ContentType.failure);
+      Navigator.pop(context);
+      return;
+    }
+
+    _pc.close();
+    Navigator.pop(context);
+
+    // Giả sử rằng phản hồi từ API VietMap chứa các chi tiết địa điểm tương tự như Geoapify
+    if (responseFromPlaceDetailApi != null && responseFromPlaceDetailApi.isNotEmpty) {
+      var result = responseFromPlaceDetailApi;
+
+      AddressModel dropOffAddress = AddressModel();
+      dropOffAddress.placeName = result["display"];
+      dropOffAddress.latPosition = result["lat"];
+      dropOffAddress.longPosition = result["lng"];
+      dropOffAddress.placeID = placeID;
+
+      Provider.of<AppInfor>(context, listen: false).updateDropOffAddress(dropOffAddress);
+      print("Place Detail is: " + dropOffAddress.placeName.toString());
+    }
+
+    displayDirectionDetailTrip();
+  }
+
+
+  // =============================================================================================================
+
+
+
+ /* searchLocation(String locationName) async {
     if (locationName.length > 1) {
       // Get Api from url
       String urlApi = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$locationName&key=$googeMapAPITest&components=country:vn";
@@ -166,9 +325,9 @@ class HomePageState extends State<HomePage> {
         print(locationListDisplay);
       }
     }
-  }
+  }*/
 
-  fetchClickedPlaceDetail(PanelController _pc,String placeID) async{
+  /*fetchClickedPlaceDetail(PanelController _pc,String placeID) async{
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -199,7 +358,7 @@ class HomePageState extends State<HomePage> {
       print("Place Detail is: " + dropOffAddress.latPosition.toString());
     }
     displayDirectionDetailTrip();
-  }
+  }*/
 
   displayDirectionDetailTrip() async{
     var pickupGeoAddress = Provider.of<AppInfor>(context,listen: false).pickUpAddress;
@@ -209,14 +368,20 @@ class HomePageState extends State<HomePage> {
     var dropOffCoordinates = LatLng(dropOffGeoAddress!.latPosition!, dropOffGeoAddress.longPosition!);
 
 
+    print(pickupCoordinates.latitude);
+    print(pickupCoordinates.longitude);
+    print(dropOffCoordinates.latitude);
+    print(dropOffCoordinates.longitude);
+
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context)=> LoadingDialog(messageText: "Getting Direction......."),
     );
 
-
     var detailDirectionModel = await CommonMethods.getDirectionDetail(pickupCoordinates, dropOffCoordinates);
+    print(detailDirectionModel);
+
     setState(() {
       tripDirectionDetailModel = detailDirectionModel;
     });
@@ -225,7 +390,7 @@ class HomePageState extends State<HomePage> {
     Navigator.pop(context);
 
     PolylinePoints polylinePoints = PolylinePoints();
-    List<PointLatLng> listLatLngPolylinePoints = polylinePoints.decodePolyline(tripDirectionDetailModel!.encodedPoint!);
+    List<PointLatLng> listLatLngPolylinePoints =  polylinePoints.decodePolyline(tripDirectionDetailModel!.encodedPoint!);//tripDirectionDetailModel!.listLatLngPolylinePoints!;
     print(listLatLngPolylinePoints);
 
 
@@ -1189,7 +1354,6 @@ class HomePageState extends State<HomePage> {
                                 availableOnlineNearbyDriver = ManagerDriverMethods.listDriverNearby;
                                 searchDriver();
                               });
-
                             },
                             child: const Text(
                               "Confirm",
@@ -1354,16 +1518,16 @@ class HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 textWidget(
-                    text: (tripDirectionDetailModel!=null) ? "${CommonMethods.convertFromKilometersToMoney(tripDirectionDetailModel!.digitDistance!).toString()} VND" : "O vnd",
+                    text: (tripDirectionDetailModel!=null) ? "${CommonMethods.convertFromKilometersToMoney(tripDirectionDetailModel!.digitDistance!)} VND" : "O VND",
                     color: Colors.white,
                     fontWeight: FontWeight.w700),
                 textWidget(
-                    text:  CommonMethods.convertTimeFormat(tripDirectionDetailModel?.timeDurationText.toString() ?? "0 MIN"),
+                    text:  (tripDirectionDetailModel!=null) ? CommonMethods.convertIntToTimeFormat(tripDirectionDetailModel!.digitTimeDuration!) : "0H 00s",
                     color: Colors.white.withOpacity(0.8),
                     fontWeight: FontWeight.normal,
                     fontSize: 12),
                 textWidget(
-                    text: tripDirectionDetailModel?.distanceText.toString() ?? "0 KM",
+                    text: (tripDirectionDetailModel!=null) ? CommonMethods.convertDistance(tripDirectionDetailModel!.digitDistance!) : "0 Km",
                     color: Colors.white.withOpacity(0.8),
                     fontWeight: FontWeight.normal,
                     fontSize: 12),
