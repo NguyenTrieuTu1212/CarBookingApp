@@ -11,7 +11,7 @@ String vietmapApiKey = "9f7a0d8e4b1b62942921a791702e132d3a22f4daa5d54b41";
 //AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg
 String googleMapKey ="AIzaSyBbMNaYG54dqrE4TH03TETRp7MyXOCuuu8";
 String googeMapAPITest ="AIzaSyAI9kPkskayYti5ttrZL_UfBlL3OkMEbvs";
-String serverKeyFCM ="AAAAHZmFRgM:APA91bEHPfHD4iZJJW485-somdn5EhzldAJ-Li5MhMC5YTcBVLWboNlL5fBv6T0kv7uHi-t0WkH9Shb-jTNJibEqoV9aow3ZOgY3NQnYYRh4r2CygZjjQPt8Owm4BhKf7lrJQiFwHGx7";
+String serverKeyFCM ="key=AAAAHZmFRgM:APA91bEHPfHD4iZJJW485-somdn5EhzldAJ-Li5MhMC5YTcBVLWboNlL5fBv6T0kv7uHi-t0WkH9Shb-jTNJibEqoV9aow3ZOgY3NQnYYRh4r2CygZjjQPt8Owm4BhKf7lrJQiFwHGx7";
 
 //AIzaSyDuDxriw8CH8NbVLiXtKFQ2Nb64AoRSdyg
 

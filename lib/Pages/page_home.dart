@@ -297,8 +297,6 @@ class HomePageState extends State<HomePage> {
 
   // =============================================================================================================
 
-
-
  /* searchLocation(String locationName) async {
     if (locationName.length > 1) {
       // Get Api from url
@@ -1459,29 +1457,6 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
 
-                    /*GestureDetector(
-                      onTap: ()
-                      {
-                        setState(() {
-                          _panelBookCarController.show();
-                          requestContainerHeight = 0;
-                        });
-                      },
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(width: 1.5, color: Colors.grey),
-                        ),
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.black,
-                          size: 25,
-                        ),
-                      ),
-                    ),*/
                     const SizedBox(height: 12,),
                   ],
                 ),

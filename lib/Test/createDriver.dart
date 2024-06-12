@@ -10,7 +10,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../Methods/push_notification_service.dart';
 import '../Models/direction_detail_model.dart';
+import '../Models/online_nearby_driver.dart';
 import '../Widgets/loading_dialog.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:http/http.dart' as http;
@@ -29,6 +31,7 @@ class _AddDriverState extends State<AddDriver> {
 
 
   CommonMethods commonMethods = new CommonMethods();
+  DatabaseReference? tripRequestRef;
 
 
   regristerNewDriver() async{
@@ -65,7 +68,6 @@ class _AddDriverState extends State<AddDriver> {
     commonMethods.DisplayBox(context, "Congratulations", "Registered successfully", ContentType.success);
 
   }
-
 
   Future<void> getDirectionDetail() async {
 
@@ -118,6 +120,27 @@ class _AddDriverState extends State<AddDriver> {
     print("Succesful");
     print(detailModels.listLatLngPolylinePoints);
    }*/
+
+  sendNotificationToDriver(OnlineNearbyDrivers currentDriver){
+    DatabaseReference currentDriverRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(currentDriver.uidDriver.toString())
+        .child("newStripStatus");
+
+    currentDriverRef.set(tripRequestRef!.key);
+    DatabaseReference tokenCurrentDriverRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(currentDriver.uidDriver.toString())
+        .child("deviceToken");
+    tokenCurrentDriverRef.once().then((dataSnapshot) {
+      if(dataSnapshot.snapshot.value != null){
+        String deviceToken = dataSnapshot.snapshot.value.toString();
+        PushNotificationService.sendNotificationToSelectedDriver(deviceToken, context,tripRequestRef!.key.toString());
+      }else return;
+    });
+  }
 
 
   @override
