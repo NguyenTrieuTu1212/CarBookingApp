@@ -297,6 +297,7 @@ class HomePageState extends State<HomePage> {
 
   // =============================================================================================================
 
+
  /* searchLocation(String locationName) async {
     if (locationName.length > 1) {
       // Get Api from url
@@ -666,6 +667,44 @@ class HomePageState extends State<HomePage> {
         String deviceToken = dataSnapshot.snapshot.value.toString();
         PushNotificationService.sendNotificationToSelectedDriver(deviceToken, context,tripRequestRef!.key.toString());
       }else return;
+      const oneTickPerSec = Duration(seconds: 1);
+
+      var timerCountDown = Timer.periodic(oneTickPerSec, (timer)
+      {
+        requestTimeoutDriver = requestTimeoutDriver - 1;
+
+        //when trip request is not requesting means trip request cancelled - stop timer
+        if(stateOfApp != "requesting")
+        {
+          timer.cancel();
+          currentDriverRef.set("cancelled");
+          currentDriverRef.onDisconnect();
+          requestTimeoutDriver = 20;
+        }
+
+        //when trip request is accepted by online nearest available driver
+        currentDriverRef.onValue.listen((dataSnapshot)
+        {
+          if(dataSnapshot.snapshot.value.toString() == "accepted")
+          {
+            timer.cancel();
+            currentDriverRef.onDisconnect();
+            requestTimeoutDriver = 20;
+          }
+        });
+
+        //if 20 seconds passed - send notification to next nearest online available driver
+        if(requestTimeoutDriver == 0)
+        {
+          currentDriverRef.set("timeout");
+          timer.cancel();
+          currentDriverRef.onDisconnect();
+          requestTimeoutDriver = 20;
+
+          //send notification to next nearest online available driver
+          searchDriver();
+        }
+      });
     });
   }
 

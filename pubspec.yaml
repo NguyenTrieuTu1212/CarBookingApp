@@ -51,6 +51,7 @@ dependencies:
   loading_animation_widget:
   flutter_geofire:
   firebase_messaging:
+  restart_app:
 
 dev_dependencies:
   flutter_test:
