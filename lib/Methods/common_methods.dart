@@ -315,18 +315,6 @@ class CommonMethods{
     return result;
   }
 
-  /*static String formatCurrencyMoney(int amount) {
-    String formattedAmount = amount.toString();
-    String result = '';
-    while (formattedAmount.length > 3) {
-      result = '.${formattedAmount.substring(formattedAmount.length - 3)}$result';
-      formattedAmount = formattedAmount.substring(0, formattedAmount.length - 3);
-    }
-    result = formattedAmount + result;
-
-    return result;
-  }*/
-
   static int calculateTheNumberOfMetersLeftOver(int meters,int cost){
     /*double m = meters/1000.0;
     double costToPay = m * cost;*/

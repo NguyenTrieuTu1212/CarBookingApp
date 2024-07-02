@@ -52,6 +52,7 @@ dependencies:
   flutter_geofire:
   firebase_messaging:
   restart_app:
+  url_launcher:
 
 dev_dependencies:
   flutter_test:
