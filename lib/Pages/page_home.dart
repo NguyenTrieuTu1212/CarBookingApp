@@ -789,7 +789,7 @@ class HomePageState extends State<HomePage> {
         .ref()
         .child("drivers")
         .child(currentDriver.uidDriver.toString())
-        .child("newStripStatus");
+        .child("newTripStatus");
 
     currentDriverRef.set(tripRequestRef!.key);
     DatabaseReference tokenCurrentDriverRef = FirebaseDatabase.instance
