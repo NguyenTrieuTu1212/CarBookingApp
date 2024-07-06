@@ -31,11 +31,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../AppInfor/app_info.dart';
 import '../Global/global_var.dart';
 import '../Global/trip_var.dart';
+import '../Widgets/payment_dialog.dart';
 import '../Widgets/text_widget.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:http/http.dart' as http;
@@ -634,7 +636,7 @@ class HomePageState extends State<HomePage> {
     };
     tripRequestRef!.set(dataMap);
     tripStreamSubscription = tripRequestRef!.onValue.listen((eventSnapshot)
-    {
+    async {
       if(eventSnapshot.snapshot.value == null)
       {
         return;
@@ -703,6 +705,30 @@ class HomePageState extends State<HomePage> {
         setState(() {
           setMarker.removeWhere((element) => element.markerId.value.contains("driver"));
         });
+      }
+
+      if(status == "ended")
+      {
+        if((eventSnapshot.snapshot.value as Map)["fareAmount"] != null)
+        {
+          double fareAmount = double.parse((eventSnapshot.snapshot.value as Map)["fareAmount"].toString());
+
+          var responseFromPaymentDialog = await showDialog(
+            context: context,
+            builder: (BuildContext context) => PaymentDialog(fareAmount: fareAmount.toString()),
+          );
+
+          if(responseFromPaymentDialog == "paid")
+          {
+            tripRequestRef!.onDisconnect();
+            tripRequestRef = null;
+
+            tripStreamSubscription!.cancel();
+            tripStreamSubscription = null;
+            resetApp();
+            Restart.restartApp();
+          }
+        }
       }
 
     });
@@ -1412,6 +1438,7 @@ class HomePageState extends State<HomePage> {
                           child: GestureDetector(
                             onTap: () async {
                               resetApp();
+                              makeIconCarDriverNearby();
                               await Future.delayed(Duration(milliseconds: 200));
                               _panelBookCarController.hide();
                               _panelSearchLocationController.show();
